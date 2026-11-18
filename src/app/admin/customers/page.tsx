@@ -46,7 +46,10 @@ export default async function AdminCustomersPage() {
                 profiles.map((user) => {
                   const ownedCount =
                     entitlements?.filter(
-                      (e) => e.customer_email.toLowerCase() === user.email.toLowerCase()
+                      (e) =>
+                        e.customer_email &&
+                        user.email &&
+                        e.customer_email.toLowerCase() === user.email.toLowerCase()
                     ).length || 0;
 
                   return (

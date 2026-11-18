@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { validateAdminSession, AUTHORIZED_ADMIN_EMAIL } from "@/lib/auth/admin";
+import { AdminGoogleLoginButton } from "@/components/AdminGoogleLoginButton";
 import {
   LayoutDashboard,
   BookOpen,
@@ -99,13 +100,7 @@ export default async function AdminLayout({
               ← Return to Storefront
             </Link>
 
-            <Link
-              href="/auth/signin?redirect=/admin"
-              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-md"
-            >
-              <span>Sign in with Google</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            <AdminGoogleLoginButton />
           </div>
         </div>
       </div>

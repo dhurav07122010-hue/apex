@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { useCart } from "@/context/CartContext";
+import { createClient } from "@/lib/supabase/client";
 import {
   BookOpen,
   Search,
@@ -15,6 +16,7 @@ import {
   User,
   Sparkles,
   Layers,
+  ShieldCheck,
 } from "lucide-react";
 
 export function Navbar() {
@@ -22,6 +24,20 @@ export function Navbar() {
   const { totalItems, setIsCartOpen } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,14 +111,37 @@ export function Navbar() {
               )}
             </button>
 
-            {/* Account / Sign In */}
-            <Link
-              href="/auth/signin"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
-            >
-              <User className="w-4 h-4 text-zinc-400" />
-              <span className="hidden sm:inline">Sign In</span>
-            </Link>
+            {/* Account / Sign In / Admin */}
+            {user ? (
+              <div className="flex items-center gap-2">
+                {user.email?.toLowerCase() === "dhurav07122010@gmail.com" && (
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-bold text-[11px] shadow-sm hover:bg-amber-300 transition-colors"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Admin</span>
+                  </Link>
+                )}
+                <Link
+                  href="/account"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+                >
+                  <User className="w-4 h-4 text-blue-600" />
+                  <span className="hidden sm:inline">
+                    {user.user_metadata?.full_name?.split(" ")[0] || "Account"}
+                  </span>
+                </Link>
+              </div>
+            ) : (
+              <Link
+                href="/auth/signin"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              >
+                <User className="w-4 h-4 text-zinc-400" />
+                <span className="hidden sm:inline">Sign In</span>
+              </Link>
+            )}
 
             {/* Mobile menu toggle */}
             <button
@@ -145,6 +184,28 @@ export function Navbar() {
                 {link.name}
               </Link>
             ))}
+
+            {user?.email?.toLowerCase() === "dhurav07122010@gmail.com" && (
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-lg text-sm font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 flex items-center gap-2"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>Admin Portal</span>
+              </Link>
+            )}
+
+            {user && (
+              <Link
+                href="/account"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-lg text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 flex items-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                <span>My Account & Bookshelf</span>
+              </Link>
+            )}
           </div>
 
           <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800">

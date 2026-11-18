@@ -1,31 +1,56 @@
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { AUTHORIZED_ADMIN_EMAIL } from "@/config/site";
 
 export async function GET(request: Request) {
-  const requestUrl = new URL(request.url);
-  const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") || "/account";
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
+  const next = searchParams.get("next") ?? "/account";
 
   if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const cookieStore = await cookies();
+    const cookiesToSetArray: { name: string; value: string; options: any }[] = [];
 
-    if (!error) {
-      // Check if user is the designated admin
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user && user.email?.toLowerCase() === "dhurav07122010@gmail.com") {
-        return NextResponse.redirect(new URL("/admin", request.url));
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+              cookiesToSetArray.push({ name, value, options });
+            });
+          },
+        },
       }
+    );
 
-      return NextResponse.redirect(new URL(next, request.url));
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (!error && data?.user) {
+      const user = data.user;
+      const isAdmin =
+        user.email?.toLowerCase().trim() === AUTHORIZED_ADMIN_EMAIL.toLowerCase().trim();
+
+      const targetUrl = isAdmin ? `${origin}/admin` : `${origin}${next}`;
+      const redirectResponse = NextResponse.redirect(targetUrl);
+
+      // Explicitly set all session cookies on the redirect response
+      cookiesToSetArray.forEach(({ name, value, options }) => {
+        redirectResponse.cookies.set(name, value, options);
+      });
+
+      return redirectResponse;
     }
   }
 
-  // Return to signin with error message
+  // Return to sign in with error message if exchange failed
   return NextResponse.redirect(
-    new URL("/auth/signin?error=Could not authenticate with Google", request.url)
+    `${origin}/auth/signin?error=Could not authenticate session. Please try again.`
   );
 }

@@ -27,9 +27,9 @@ export function ProductListClient({ initialProducts }: ProductListClientProps) {
 
   const filtered = products.filter(
     (p) =>
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.author.toLowerCase().includes(search.toLowerCase()) ||
-      p.category_id.toLowerCase().includes(search.toLowerCase())
+      (p.title?.toLowerCase() || "").includes(search.toLowerCase()) ||
+      (p.author?.toLowerCase() || "").includes(search.toLowerCase()) ||
+      (p.category_id?.toLowerCase() || "").includes(search.toLowerCase())
   );
 
   const handleTogglePublish = async (id: string, currentStatus: boolean) => {
