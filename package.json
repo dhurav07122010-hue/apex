@@ -7,14 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node scripts/test-phase1.mjs && node scripts/test-phase2.mjs && node scripts/test-phase3.mjs && node scripts/test-phase4.mjs && npx tsx scripts/test-phase5.mjs && npx tsx scripts/test-phase6.mjs && npx tsx scripts/test-phase7-security.mjs",
+    "test": "node scripts/test-phase1.mjs && node scripts/test-phase2.mjs && node scripts/test-phase3.mjs && node scripts/test-phase4.mjs && npx tsx scripts/test-phase5.mjs && npx tsx scripts/test-phase6.mjs && npx tsx scripts/test-phase7-security.mjs && npx tsx scripts/test-search.mjs",
     "test:phase1": "node scripts/test-phase1.mjs",
     "test:phase2": "node scripts/test-phase2.mjs",
     "test:phase3": "node scripts/test-phase3.mjs",
     "test:phase4": "node scripts/test-phase4.mjs",
     "test:phase5": "npx tsx scripts/test-phase5.mjs",
     "test:phase6": "npx tsx scripts/test-phase6.mjs",
-    "test:security": "npx tsx scripts/test-phase7-security.mjs"
+    "test:security": "npx tsx scripts/test-phase7-security.mjs",
+    "test:search": "npx tsx scripts/test-search.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

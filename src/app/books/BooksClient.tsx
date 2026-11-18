@@ -6,6 +6,7 @@ import { MOCK_BOOKS } from "@/data/mock-books";
 import { siteConfig } from "@/config/site";
 import { BookCard } from "@/components/BookCard";
 import { Book, BookFormat } from "@/types";
+import { matchBookRelative } from "@/lib/search";
 import {
   Search,
   SlidersHorizontal,
@@ -58,17 +59,13 @@ export function BooksClient() {
     router.replace(`/books${query}`, { scroll: false });
   };
 
-  // Filtered & Sorted books calculation
+  // Filtered & Sorted books calculation with relative matching
   const filteredBooks = useMemo(() => {
     return MOCK_BOOKS.filter((book) => {
-      // Search query
+      // Relative search query matching
       if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const matchesTitle = book.title.toLowerCase().includes(query);
-        const matchesAuthor = book.author.toLowerCase().includes(query);
-        const matchesCat = book.categoryName.toLowerCase().includes(query);
-        const matchesDesc = book.shortDescription.toLowerCase().includes(query);
-        if (!matchesTitle && !matchesAuthor && !matchesCat && !matchesDesc) {
+        const { matches } = matchBookRelative(book, searchQuery);
+        if (!matches) {
           return false;
         }
       }
