@@ -21,11 +21,69 @@ export interface AdminValidationResult {
  * 4. Validates active allowlist record in Postgres database table.
  * 5. Rejects any client-supplied role or header.
  */
+export async function validateAdminUser(
+  user: Partial<User> | null
+): Promise<AdminValidationResult> {
+  if (!user) {
+    return {
+      authorized: false,
+      error: "Unauthenticated: No active session found.",
+    };
+  }
+
+  const email = user.email?.toLowerCase().trim();
+
+  // 1. Exact email allowlist check
+  if (email !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+    return {
+      authorized: false,
+      error: `Forbidden: Email '${email}' is not authorized for administrator access.`,
+    };
+  }
+
+  // 2. Enforce Google OAuth only — permanently reject email/password login
+  const provider = user.app_metadata?.provider;
+  const hasGoogleIdentity =
+    provider === "google" ||
+    user.identities?.some((identity) => identity.provider === "google");
+
+  if (!hasGoogleIdentity) {
+    return {
+      authorized: false,
+      error:
+        "Forbidden: Password authentication is prohibited for admin access. Google OAuth is strictly required.",
+    };
+  }
+
+  // 3. Server database allowlist verification
+  const adminDb = createAdminClient();
+  const { data: allowlistEntry, error: dbError } = await adminDb
+    .from("admin_allowlist")
+    .select("email, is_active")
+    .eq("email", AUTHORIZED_ADMIN_EMAIL)
+    .eq("is_active", true)
+    .single();
+
+  if (dbError || !allowlistEntry) {
+    return {
+      authorized: false,
+      error:
+        "Forbidden: Admin email is not registered or is deactivated in server allowlist database.",
+    };
+  }
+
+  // All server checks passed
+  return {
+    authorized: true,
+    user: user as User,
+  };
+}
+
 export async function validateAdminSession(): Promise<AdminValidationResult> {
   try {
     const supabase = await createClient();
 
-    // 1. Fetch user from server-side session (cryptographically verified by Supabase)
+    // Fetch user from server-side session (cryptographically verified by Supabase)
     const {
       data: { user },
       error: authError,
@@ -38,52 +96,7 @@ export async function validateAdminSession(): Promise<AdminValidationResult> {
       };
     }
 
-    const email = user.email?.toLowerCase().trim();
-
-    // 2. Exact email allowlist check
-    if (email !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-      return {
-        authorized: false,
-        error: `Forbidden: Email '${email}' is not authorized for administrator access.`,
-      };
-    }
-
-    // 3. Enforce Google OAuth only — permanently reject email/password login
-    const provider = user.app_metadata?.provider;
-    const hasGoogleIdentity =
-      provider === "google" ||
-      user.identities?.some((identity) => identity.provider === "google");
-
-    if (!hasGoogleIdentity) {
-      return {
-        authorized: false,
-        error:
-          "Forbidden: Password authentication is prohibited for admin access. Google OAuth is strictly required.",
-      };
-    }
-
-    // 4. Server database allowlist verification
-    const adminDb = createAdminClient();
-    const { data: allowlistEntry, error: dbError } = await adminDb
-      .from("admin_allowlist")
-      .select("email, is_active")
-      .eq("email", AUTHORIZED_ADMIN_EMAIL)
-      .eq("is_active", true)
-      .single();
-
-    if (dbError || !allowlistEntry) {
-      return {
-        authorized: false,
-        error:
-          "Forbidden: Admin email is not registered or is deactivated in server allowlist database.",
-      };
-    }
-
-    // All server checks passed
-    return {
-      authorized: true,
-      user,
-    };
+    return validateAdminUser(user);
   } catch (err: any) {
     return {
       authorized: false,

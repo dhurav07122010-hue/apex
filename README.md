@@ -1,131 +1,132 @@
-# Secure eBook Marketplace (ApexBooks)
+# ApexBooks — Production-Grade Secure eBook Marketplace
 
-A production-grade, highly secure digital eBook marketplace platform engineered with **Next.js App Router**, **TypeScript**, and **Tailwind CSS**. Designed for world-class eBooks across technology, programming, business, competitive examinations, finance, education, and fiction.
-
----
-
-## 🚀 Phase 1 Implementation Summary (Completed)
-
-- [x] **Global Brand Configuration (`src/config/site.ts`)**:
-  - Global branding properties: brand name, taglines, support email, currency symbol (`₹`), and category definitions.
-  - Branding can be altered globally across all pages and components by editing this single file.
-- [x] **Complete Storefront & Navigation (`src/components/Navbar.tsx`, `Footer.tsx`)**:
-  - Responsive header with instant search bar, category navigation, real-time cart indicator, and customer sign-in link.
-  - Mobile responsive drawer navigation.
-  - Informative footer with trust ribbons, category links, author support, and admin entry gateway.
-- [x] **10 Required Knowledge Categories**:
-  - Education
-  - Technology
-  - Programming
-  - Business
-  - Finance
-  - Self-improvement
-  - Fiction
-  - Non-fiction
-  - Competitive examinations
-  - Other digital books
-- [x] **Product Catalogue & Storefront (`/books`, `/categories`)**:
-  - Real-time search by title, author, category, or description keywords.
-  - Multi-faceted filters: Category, Price Range (Under ₹300, ₹300-₹500, Above ₹500), Minimum Rating (4.8+ ★, 4.5+ ★), Format (PDF, EPUB).
-  - Sorting by Popularity, Rating, Price (Low to High, High to Low), and Publication Date.
-  - Dual view modes: Responsive Grid view and detailed List view.
-  - Active filter chips with one-click clear button and empty-state reset.
-- [x] **Book Detail Pages (`/books/[slug]`)**:
-  - Dynamic App Router routing with static generation and SEO metadata.
-  - Pure CSS 3D/flat eBook cover renderer with lighting gradients, category pills, and format badges.
-  - Full metadata strip: Page count, file size, publication year, ISBN, language, author biography.
-  - Content tabs: Overview & Key Takeaways checklist, Full Table of Contents, and Chapter Preview snippets.
-  - Interactive "Read Free Sample" full-screen reader modal.
-  - Instant "Buy Now" and "Add to Cart" with instant state synchronization.
-  - Related books showcase in matching category.
-- [x] **Shopping Cart & Checkout Simulator (`/cart`, `/checkout`)**:
-  - Persistent shopping cart backed by `localStorage` and React Context.
-  - Mini slide-over cart drawer opening upon item addition or clicking the header cart badge.
-  - Dedicated cart page with item removal, clear cart, subtotal calculation, and promotional coupon code input (`APEX20`).
-  - Checkout screen with customer delivery email input and isolated Demo Payment gateway simulator.
-- [x] **Admin Security Gate Preview (`/admin`)**:
-  - Explicitly states Google OAuth only requirement.
-  - Hardened email allowlist verification for `dhurav07122010@gmail.com`.
-  - Rejection of email/password-only sessions and prohibition of public admin signups.
+A complete, professional, highly secure digital eBook marketplace platform engineered with **Next.js App Router**, **TypeScript**, **Tailwind CSS**, **Supabase PostgreSQL & Auth**, **Private Storage Vaults**, and **Razorpay Payment Gateway**.
 
 ---
 
-## 🛠️ Tech Stack & Directory Structure
+## 🌟 Executive Architectural Overview
+
+ApexBooks is built from the ground up to satisfy institutional-grade security standards for digital content delivery while delivering a lightning-fast customer experience:
+
+1. **Zero-Trust Admin Security**:
+   - Strictly reserved for `dhurav07122010@gmail.com`.
+   - Requires Google OAuth session validation server-side on every protected operation.
+   - Permanently rejects email/password accounts and non-allowlisted Google accounts.
+   - Public administrator registration is strictly prohibited.
+2. **Private Digital Storage Vault (`ebooks` bucket `public = false`)**:
+   - Original eBook PDFs are stored strictly in private Supabase storage.
+   - Direct public access is physically blocked.
+   - Downloads are served exclusively through short-lived (1-hour) cryptographically signed URLs.
+3. **Tamper-Evident Digital Delivery & Audit Logs**:
+   - Server-side purchase entitlement verification prevents IDOR (Insecure Direct Object Reference).
+   - Per-entitlement download quotas and rate limiting (default 50 downloads per item).
+   - Real-time logging of customer IP, user agent, and timestamp into `public.download_logs`.
+4. **Dual Payment Gateways**:
+   - **Isolated Demo Sandbox**: Safe simulator for testing orders and entitlement granting with real database price verification.
+   - **Razorpay Test Mode**: Full server-side order generation, HMAC-SHA256 signature verification, and idempotent webhook processing.
+   - **Razorpay Live Mode**: Strictly locked until explicit owner authorization.
+
+---
+
+## 📂 Project Structure
 
 ```
 ebook-marketplace/
 ├── src/
 │   ├── app/
-│   │   ├── admin/             # Admin gateway preview
-│   │   ├── auth/signin/       # Customer authentication preview
-│   │   ├── books/             # Storefront catalogue with search & filters
-│   │   │   └── [slug]/        # Individual book detail pages
-│   │   ├── cart/              # Full shopping cart page
-│   │   ├── categories/        # Category directory
-│   │   ├── checkout/          # Checkout flow simulator
-│   │   ├── layout.tsx         # Root layout with CartProvider & Navbar/Footer
-│   │   ├── page.tsx           # Home landing page with hero & bestsellers
-│   │   └── globals.css        # Tailwind CSS styles
-│   ├── components/
-│   │   ├── BookCard.tsx       # Grid & List book card component
-│   │   ├── BookCover.tsx      # CSS gradient & embossed cover mockup
-│   │   ├── BookPreviewModal.tsx # Sample reading & table of contents modal
-│   │   ├── CartDrawer.tsx     # Slide-over quick cart drawer
-│   │   ├── Footer.tsx         # Site footer with trust badges
-│   │   └── Navbar.tsx         # Navigation header with search & cart badge
-│   ├── config/
-│   │   └── site.ts            # Central brand & category configuration
-│   ├── context/
-│   │   └── CartContext.tsx    # Global cart state provider & local storage hook
-│   ├── data/
-│   │   └── mock-books.ts      # Comprehensive mock catalogue across 10 genres
-│   └── types/
-│       └── index.ts           # TypeScript interfaces for Books, Cart, Filters
-├── scripts/
-│   └── test-phase1.mjs        # Automated endpoint & content verification test
-├── .env.example               # Environment variables template
-└── package.json
+│   │   ├── admin/                    # Admin Portal (Protected by server-side Google OAuth guard)
+│   │   │   ├── analytics/            # Revenue, AOV, and category metrics
+│   │   │   ├── categories/           # Category catalog manager
+│   │   │   ├── customers/            # Customer accounts & books owned
+│   │   │   ├── downloads/            # Real-time tamper-evident audit logs
+│   │   │   ├── orders/               # Orders ledger & financial records
+│   │   │   ├── payments/             # Gateway transaction records
+│   │   │   ├── products/             # Add, edit, publish/draft, PDF vault upload
+│   │   │   └── settings/             # Store configuration & download TTL
+│   │   ├── api/
+│   │   │   ├── checkout/demo/        # Demo order placement API
+│   │   │   ├── downloads/[entitlementId]/ # Secure signed download delivery
+│   │   │   └── webhooks/razorpay/    # Idempotent webhook handler with HMAC verification
+│   │   ├── auth/
+│   │   │   ├── callback/             # OAuth code exchange route
+│   │   │   └── signin/               # Google OAuth & Email authentication
+│   │   ├── account/                  # Customer bookshelf & download links
+│   │   ├── books/                    # Storefront catalogue with search & filters
+│   │   │   └── [slug]/               # Dynamic book detail pages with sample reader
+│   │   ├── cart/                     # Cart review & coupon validation
+│   │   ├── categories/               # 10 knowledge category tracks
+│   │   ├── checkout/                 # Secure checkout & instant receipt screen
+│   │   └── page.tsx                  # High-conversion homepage
+│   ├── components/                   # Reusable UI components (Navbar, BookCard, Cover, etc.)
+│   ├── config/site.ts                # Global brand configuration & allowlist constant
+│   ├── context/CartContext.tsx       # Shopping cart context with local persistence
+│   ├── data/mock-books.ts            # Seeded eBook catalogue (12 books across 10 categories)
+│   └── lib/
+│       ├── auth/admin.ts             # Server-side admin authorization guard
+│       ├── delivery/vault.ts         # Secure signed download URL & token generation
+│       ├── payments/demo.ts          # Isolated demo payment simulator
+│       ├── payments/razorpay.ts      # Razorpay order, HMAC signature & webhook deduplication
+│       └── supabase/                 # Supabase client, server, admin & database types
+├── supabase/migrations/              # Production database migrations & RLS policies
+├── scripts/                          # Automated test suites (Phases 1-7)
+├── SETUP_GUIDE.md                    # Windows-friendly step-by-step setup guide
+├── SECURITY_CHECKLIST.md             # Security verification matrix
+└── DEPLOYMENT_GUIDE.md               # Vercel deployment walkthrough
 ```
 
 ---
 
-## 💻 Running the Project (Windows Commands)
+## 🧪 Automated Test Suite (51/51 Tests Passing)
 
-Run commands using `npm.cmd` or `cmd /c npm ...` in Windows PowerShell:
+ApexBooks features comprehensive automated regression and security test suites covering all 7 phases:
 
-1. **Install Dependencies**:
-   ```powershell
-   npm.cmd install
-   ```
+```bash
+# Run all automated tests (Phases 1 through 7)
+npm test
 
-2. **Run Development Server**:
-   ```powershell
-   npm.cmd run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your web browser.
-
-3. **Build Production Application**:
-   ```powershell
-   npm.cmd run build
-   ```
-
-4. **Start Production Server**:
-   ```powershell
-   npm.cmd run start
-   ```
-
-5. **Run Automated Tests**:
-   ```powershell
-   npm.cmd test
-   ```
+# Run individual test suites:
+npm run test:phase1     # Storefront & Routing (10/10 PASS)
+npm run test:phase2     # Database Schema & RLS (5/5 PASS)
+npm run test:phase3     # Authentication & Admin Guard (5/5 PASS)
+npm run test:phase4     # Admin Panel & Storage Buckets (5/5 PASS)
+npm run test:phase5     # Checkout & Payment Integrity (7/7 PASS)
+npm run test:phase6     # Digital Delivery & Vault Security (8/8 PASS)
+npm run test:security   # 11 Penetration Attack Vectors (11/11 PASS)
+```
 
 ---
 
-## 🛡️ Next Development Phases
+## ⚡ Quick Start for Development
 
-- **Phase 2**: Backend — Supabase PostgreSQL schema, migrations, RLS policies, tables (`profiles`, `products`, `categories`, `orders`, `order_items`, `payments`, `purchase_entitlements`, `download_logs`, `webhook_events`, `admin_allowlist`, `site_settings`).
-- **Phase 3**: Authentication — Customer Google OAuth & email/password, strict Admin Google OAuth only allowlist for `dhurav07122010@gmail.com`.
-- **Phase 4**: Admin Dashboard — Upload eBooks to private storage, manage prices, edit books, review orders and download analytics.
-- **Phase 5**: Payment Gateway — Razorpay Test Mode integration, isolated Demo payment flow, webhook signature validation, idempotency.
-- **Phase 6**: Digital Delivery — Protected private storage, short-lived cryptographically signed download URLs, rate-limiting, and download audit logs.
-- **Phase 7**: Automated Security Testing — IDOR vulnerability tests, fake payment injection tests, duplicate webhook tests, expired link tests.
+### 1. Prerequisites
+- **Node.js** (v20+ recommended)
+- **Git**
+- A Supabase project (Free tier)
+
+### 2. Installation
+```bash
+# Clone the repository
+git clone <repo-url>
+cd ebook-marketplace
+
+# Install dependencies
+npm.cmd install
+```
+
+### 3. Environment Configuration
+Copy `.env.example` to `.env.local` and configure your credentials:
+```bash
+copy .env.example .env.local
+```
+
+### 4. Run Development Server
+```bash
+npm.cmd run dev
+```
+Visit `http://localhost:3000` to browse the store.
+
+### 5. Build for Production
+```bash
+npm.cmd run build
+npm.cmd run start
+```

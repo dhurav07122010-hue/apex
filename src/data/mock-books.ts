@@ -2,7 +2,7 @@ import { Book } from "@/types";
 
 export const MOCK_BOOKS: Book[] = [
   {
-    id: "prog-001",
+    id: "656a0571-9234-42d7-a585-fa44e0ebc987",
     slug: "full-stack-typescript-and-nextjs-mastery",
     title: "Full-Stack TypeScript & Next.js: Zero to Production",
     subtitle: "Architect resilient, modern web platforms with Server Components & Edge Computing",
@@ -62,7 +62,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "tech-002",
+    id: "4b2fd0b8-1941-4ab9-842d-30255ae1910e",
     slug: "cloud-native-and-distributed-systems",
     title: "Cloud-Native & Distributed Systems Architecture",
     subtitle: "Designing Fault-Tolerant, Globally Scalable Microservices",
@@ -113,7 +113,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "biz-003",
+    id: "796c4e21-58d7-41e0-8a7d-4ee753e3666a",
     slug: "zero-to-scale-the-modern-saas-playbook",
     title: "Zero to Scale: The Modern SaaS Playbook",
     subtitle: "From First Customer to $10M ARR: Playbooks, Metrics, and Retention",
@@ -164,7 +164,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "fin-004",
+    id: "3cd49aa2-03e5-40b6-96eb-19219d42453d",
     slug: "the-disciplined-investor-wealth-creation-playbook",
     title: "The Disciplined Investor: Wealth Creation in Volatile Markets",
     subtitle: "Asset Allocation, Compounding, and Behavioral Psychology for Long-Term Freedom",
@@ -215,7 +215,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "self-005",
+    id: "1ee8409e-4133-4be5-8d0d-dbd8c74c54ae",
     slug: "atomic-focus-rewire-your-attention-architecture",
     title: "Atomic Focus: Rewire Your Attention Architecture",
     subtitle: "Overcome Digital Dopamine, Reclaim Deep Work, and Achieve Peak Cognitive Flow",
@@ -266,7 +266,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "exam-006",
+    id: "a02887ca-7e9d-4913-bbd7-f5185ad2b34a",
     slug: "quantitative-aptitude-and-reasoning-mastery-2026",
     title: "Mastering Quantitative Aptitude & Logical Reasoning (2026 Edition)",
     subtitle: "Speed Math, Data Interpretation, and Verbal Logic with 2,500+ Solved Shortcuts",
@@ -317,7 +317,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "fict-007",
+    id: "39a194e8-3117-4109-a346-00cc3469809d",
     slug: "chronicles-of-the-singularity-horizon",
     title: "Chronicles of the Singularity Horizon",
     subtitle: "A High-Concept Hard Sci-Fi Epic of Artificial Consciousness and Cosmic Destiny",
@@ -367,7 +367,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "nonf-008",
+    id: "998f8914-33d8-4178-9de1-b1723713c2fd",
     slug: "the-silicon-monarchs-rise-and-fall-of-empires",
     title: "The Silicon Monarchs: Inside the Great Tech Dynasties",
     subtitle: "Power, Hubris, and the Secret Battles that Shaped the Modern Digital World",
@@ -416,7 +416,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "edu-009",
+    id: "31bc270e-7eb8-445f-ba4f-d72ee26765c0",
     slug: "modern-pedagogical-foundations-and-learning-science",
     title: "Modern Pedagogical Foundations & Cognitive Learning",
     subtitle: "Evidence-Based Instructional Design for Educators, Trainers, and Curriculum Architects",
@@ -465,7 +465,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "other-010",
+    id: "89326769-832f-461d-b0aa-a62a1cdc3612",
     slug: "the-art-of-creative-typography-and-design-systems",
     title: "The Art of Creative Typography & Design Systems",
     subtitle: "A Masterclass in Visual Hierarchy, Grid Systems, and Modern UI Aesthetics",
@@ -514,7 +514,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "prog-011",
+    id: "9d649625-4443-441d-a24a-71b8c21c7741",
     slug: "rust-for-mission-critical-systems",
     title: "Rust for Mission-Critical Systems: Safe, Fast, Fearless",
     subtitle: "Memory Safety, Concurrency without Data Races, and High-Performance Systems",
@@ -564,7 +564,7 @@ You will build real-world distributed applications with bulletproof TypeScript p
     ],
   },
   {
-    id: "fin-012",
+    id: "23c79878-bab2-40ef-b70d-89805f1de19b",
     slug: "crypto-and-defi-fundamentals-behind-the-code",
     title: "DeFi Fundamentals: The Code Behind Decentralized Finance",
     subtitle: "Automated Market Makers, Smart Contract Security, and Tokenomic Models",

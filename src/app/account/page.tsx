@@ -183,13 +183,15 @@ export default async function AccountPage() {
                     <span className="text-[11px] text-zinc-400">
                       Downloads: {item.download_count} / {item.max_downloads}
                     </span>
-                    <button
-                      type="button"
-                      className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                    <a
+                      href={`/api/downloads/${item.id}?redirect=true`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>Download</span>
-                    </button>
+                    </a>
                   </div>
                 </div>
               ))}
