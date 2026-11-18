@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { siteConfig } from "@/config/site";
 import {
   BookOpen,
@@ -83,13 +84,16 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand Info */}
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
-                <BookOpen className="w-4 h-4" />
+            <Link href="/" className="inline-block mb-3">
+              <div className="relative h-9 w-36">
+                <Image
+                  src={siteConfig.logo}
+                  alt={siteConfig.name}
+                  width={150}
+                  height={38}
+                  className="object-contain h-full w-auto"
+                />
               </div>
-              <span className="font-bold text-base text-zinc-900 dark:text-zinc-50">
-                {siteConfig.name}
-              </span>
             </Link>
             <p className="text-xs text-zinc-500 leading-relaxed max-w-sm mb-4">
               {siteConfig.description}

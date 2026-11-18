@@ -54,7 +54,7 @@ export default function HomePage() {
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-950/80 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 text-xs font-semibold">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Next-Gen Secure Digital Publishing</span>
+                <span>ApexBooks — Read • Learn • Grow</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.15]">

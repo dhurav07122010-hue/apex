@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { useCart } from "@/context/CartContext";
@@ -37,16 +38,15 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo & Brand */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md group-hover:shadow-blue-500/25 transition-all">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-extrabold text-lg text-zinc-900 dark:text-zinc-50 tracking-tight">
-                {siteConfig.name}
-              </span>
-              <span className="hidden sm:inline-block ml-1.5 px-1.5 py-0.2 rounded text-[10px] font-semibold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
-                eBooks
-              </span>
+            <div className="relative h-10 w-36 sm:w-40 flex items-center">
+              <Image
+                src={siteConfig.logo}
+                alt={`${siteConfig.name} - ${siteConfig.tagline}`}
+                width={160}
+                height={42}
+                priority
+                className="object-contain h-full w-auto"
+              />
             </div>
           </Link>
 

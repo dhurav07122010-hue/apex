@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { siteConfig } from "@/config/site";
 import { BookOpen, Mail, Lock, ShieldCheck, ArrowRight } from "lucide-react";
 
@@ -28,10 +29,17 @@ export default function SignInPage() {
     <div className="max-w-md mx-auto px-4 py-16">
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 shadow-xl space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white mx-auto shadow-md">
-            <BookOpen className="w-6 h-6" />
+          <div className="relative h-12 w-44 mx-auto flex items-center justify-center mb-2">
+            <Image
+              src={siteConfig.logo}
+              alt={siteConfig.name}
+              width={180}
+              height={48}
+              priority
+              className="object-contain"
+            />
           </div>
-          <h1 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">
+          <h1 className="text-xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">
             Welcome to {siteConfig.name}
           </h1>
           <p className="text-xs text-zinc-500">

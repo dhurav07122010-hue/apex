@@ -12,6 +12,7 @@ export interface SiteConfig {
   shortName: string;
   tagline: string;
   description: string;
+  logo: string;
   url: string;
   supportEmail: string;
   currency: {
@@ -32,11 +33,12 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: "ApexBooks", // Temporary brand name, globally configurable
-  shortName: "Apex",
-  tagline: "World-Class Digital Knowledge at Your Fingertips",
+  name: "ApexBooks",
+  shortName: "ApexBooks",
+  tagline: "Read • Learn • Grow",
   description:
     "Explore, read, and instantly download premium eBooks across technology, business, competitive examinations, fiction, and more with secure digital access.",
+  logo: "/logo.png",
   url: "http://localhost:3000",
   supportEmail: "support@apexbooks.demo",
   currency: {
