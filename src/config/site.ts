@@ -1,3 +1,5 @@
+export const AUTHORIZED_ADMIN_EMAIL = "dhurav07122010@gmail.com";
+
 export interface CategoryConfig {
   id: string;
   name: string;

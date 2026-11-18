@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { User } from "@supabase/supabase-js";
 
-export const AUTHORIZED_ADMIN_EMAIL = "dhurav07122010@gmail.com";
+import { AUTHORIZED_ADMIN_EMAIL } from "@/config/site";
+export { AUTHORIZED_ADMIN_EMAIL };
 
 export interface AdminValidationResult {
   authorized: boolean;
