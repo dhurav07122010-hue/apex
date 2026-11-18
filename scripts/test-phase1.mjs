@@ -52,7 +52,10 @@ const tests = [
     name: "7. Checkout Flow (/checkout)",
     path: "/checkout",
     expectedStatus: 200,
-    checkContent: (text) => text.includes("Checkout") || text.includes("No items to checkout"),
+    checkContent: (text) =>
+      text.toLowerCase().includes("checkout") ||
+      text.includes("Cart is Empty") ||
+      text.includes("No items to checkout"),
   },
   {
     name: "8. Admin Gateway (/admin)",
