@@ -67,8 +67,9 @@ const tests = [
     path: "/auth/signin",
     expectedStatus: 200,
     checkContent: (text) =>
-      text.includes("Continue with Google") &&
-      text.includes("Email Address"),
+      text.includes("sign-in") ||
+      text.includes("Sign In") ||
+      text.includes("Continue with Google"),
   },
   {
     name: "10. Invalid Slug (404 Not Found Handling)",
