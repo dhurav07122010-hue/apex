@@ -129,9 +129,8 @@ export default function CartPage() {
                     </h3>
                   </Link>
                   <p className="text-xs text-slate-500">{item.book.author}</p>
-                  <p className="text-xs font-bold text-[#0F1D36] pt-1">
-                    {siteConfig.currency.symbol}
-                    {item.book.price}
+                  <p className={`text-xs font-bold pt-1 ${item.book.price === 0 ? "text-emerald-600 font-black" : "text-[#0F1D36]"}`}>
+                    {item.book.price === 0 ? "FREE" : `${siteConfig.currency.symbol}${item.book.price}`}
                   </p>
                 </div>
               </div>
@@ -163,9 +162,8 @@ export default function CartPage() {
                 </div>
 
                 {/* Total Line Price */}
-                <span className="text-base font-black text-[#0F1D36]">
-                  {siteConfig.currency.symbol}
-                  {item.book.price * item.quantity}
+                <span className={`text-base font-black ${item.book.price === 0 ? "text-emerald-600" : "text-[#0F1D36]"}`}>
+                  {item.book.price === 0 ? "FREE" : `${siteConfig.currency.symbol}${item.book.price * item.quantity}`}
                 </span>
 
                 {/* Remove 'X' Button */}
@@ -220,8 +218,7 @@ export default function CartPage() {
             <div className="flex items-center justify-between">
               <span>Subtotal</span>
               <span className="font-bold text-[#0F1D36]">
-                {siteConfig.currency.symbol}
-                {subtotal}
+                {subtotal === 0 ? "FREE" : `${siteConfig.currency.symbol}${subtotal}`}
               </span>
             </div>
 
@@ -242,9 +239,8 @@ export default function CartPage() {
 
             <div className="border-t border-slate-200 pt-3 flex items-center justify-between text-base sm:text-lg font-black text-[#0F1D36]">
               <span>Total</span>
-              <span>
-                {siteConfig.currency.symbol}
-                {finalTotal}
+              <span className={finalTotal === 0 ? "text-emerald-600 font-black" : ""}>
+                {finalTotal === 0 ? "FREE" : `${siteConfig.currency.symbol}${finalTotal}`}
               </span>
             </div>
           </div>

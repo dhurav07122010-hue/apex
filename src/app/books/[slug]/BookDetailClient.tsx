@@ -141,9 +141,8 @@ export function BookDetailClient({ book, relatedBooks }: BookDetailClientProps) 
 
             {/* Price Row */}
             <div className="flex items-baseline gap-3 pt-2">
-              <span className="text-3xl font-black text-[#0F1D36]">
-                {siteConfig.currency.symbol}
-                {book.price}
+              <span className={`text-3xl font-black ${book.price === 0 ? "text-emerald-600" : "text-[#0F1D36]"}`}>
+                {book.price === 0 ? "FREE" : `${siteConfig.currency.symbol}${book.price}`}
               </span>
               {book.originalPrice && (
                 <span className="text-base text-slate-400 line-through">
@@ -195,7 +194,7 @@ export function BookDetailClient({ book, relatedBooks }: BookDetailClientProps) 
                 className="py-3.5 px-6 rounded-xl font-black text-xs sm:text-sm bg-[#FDB813] hover:bg-amber-400 text-[#0F1D36] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2"
               >
                 <Zap className="w-4 h-4" />
-                <span>Buy Now</span>
+                <span>{book.price === 0 ? "Get Free Demo" : "Buy Now"}</span>
               </button>
             </div>
 

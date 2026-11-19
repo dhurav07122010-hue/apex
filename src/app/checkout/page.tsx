@@ -25,7 +25,7 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const couponParam = searchParams.get("coupon");
 
-  const { cart, subtotal, totalItems, clearCart } = useCart();
+  const { cart, subtotal, totalItems, clearCart, setIsCartOpen } = useCart();
   const [mounted, setMounted] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
@@ -38,7 +38,8 @@ function CheckoutContent() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    setIsCartOpen(false);
+  }, [setIsCartOpen]);
 
   // Discount calculation
   const discountAmount = couponParam === "FIRST50"
@@ -417,7 +418,9 @@ function CheckoutContent() {
 
               {/* Gateway Sandbox Mode Indicator */}
               <div className="bg-amber-50 p-3 rounded-xl border border-amber-200 text-[11px] text-amber-900 flex items-center justify-between">
-                <span>Payment Mode: <strong>Razorpay Demo Sandbox</strong> (Zero Real Charge)</span>
+                <span>
+                  Payment Mode: <strong>{finalTotal === 0 ? "Free Claim / Instant Grant" : "Razorpay Demo Sandbox"}</strong> ({finalTotal === 0 ? "Complimentary" : "Zero Real Charge"})
+                </span>
                 <span className="font-bold text-amber-800">Verified</span>
               </div>
 
@@ -427,13 +430,17 @@ function CheckoutContent() {
                 </div>
               )}
 
-              {/* Navy Blue CTA: "Pay Now" */}
+              {/* Navy Blue CTA: "Pay Now" or "Get Free Demo eBook" */}
               <button
                 type="submit"
                 disabled={isProcessing}
                 className="w-full py-4 px-6 rounded-xl bg-[#0F2754] hover:bg-[#153D78] text-white font-extrabold text-sm uppercase tracking-wider transition-all shadow-md cursor-pointer disabled:opacity-50"
               >
-                {isProcessing ? "Processing Secure Order..." : `Pay Now • ${siteConfig.currency.symbol}${finalTotal}`}
+                {isProcessing
+                  ? "Processing Secure Order..."
+                  : finalTotal === 0
+                  ? "Get Free Demo eBook • Free"
+                  : `Pay Now • ${siteConfig.currency.symbol}${finalTotal}`}
               </button>
 
               {/* Security note matching reference image */}
@@ -463,7 +470,11 @@ function CheckoutContent() {
                     </p>
                   </div>
                   <span className="font-bold text-xs text-[#0F1D36]">
-                    {siteConfig.currency.symbol}{item.book.price * item.quantity}
+                    {item.book.price === 0 ? (
+                      <span className="text-emerald-600 font-black">FREE</span>
+                    ) : (
+                      `${siteConfig.currency.symbol}${item.book.price * item.quantity}`
+                    )}
                   </span>
                 </div>
               ))}
@@ -473,7 +484,7 @@ function CheckoutContent() {
               <div className="flex items-center justify-between">
                 <span>Subtotal</span>
                 <span className="font-bold text-[#0F1D36]">
-                  {siteConfig.currency.symbol}{subtotal}
+                  {subtotal === 0 ? "FREE" : `${siteConfig.currency.symbol}${subtotal}`}
                 </span>
               </div>
 

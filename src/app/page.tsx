@@ -28,6 +28,7 @@ export default function HomePage() {
 
   // Top Featured eBooks for Hero Showcase Slider
   const featuredSlugs = [
+    "apex-free-demo-guide",
     "atomic-habits",
     "the-psychology-of-money",
     "rich-dad-poor-dad",
@@ -38,12 +39,12 @@ export default function HomePage() {
     .map((slug) => MOCK_BOOKS.find((b) => b.slug === slug))
     .filter(Boolean) as typeof MOCK_BOOKS;
 
-  // Handpicked for you (Exact 4 books from reference image)
+  // Handpicked for you (includes the Free Demo eBook)
   const handpickedSlugs = [
+    "apex-free-demo-guide",
     "atomic-habits",
     "the-psychology-of-money",
     "rich-dad-poor-dad",
-    "ikigai",
   ];
   const handpickedBooks = handpickedSlugs
     .map((slug) => MOCK_BOOKS.find((b) => b.slug === slug))
@@ -206,6 +207,32 @@ export default function HomePage() {
                 </h3>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Free Demo Spotlight Banner */}
+      <section className="py-4 bg-[#FBFBFC]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#064E3B] via-[#065F46] to-[#047857] text-white shadow-xl relative overflow-hidden">
+            <div className="space-y-2 text-center md:text-left z-10">
+              <span className="inline-block px-3 py-1 rounded-full bg-emerald-400/20 border border-emerald-300/30 text-emerald-200 text-[10px] sm:text-xs font-black uppercase tracking-wider">
+                100% Free Demo Edition
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-white">
+                Test Our Instant Reading &amp; Delivery System
+              </h3>
+              <p className="text-xs sm:text-sm text-emerald-100/90 max-w-xl leading-relaxed">
+                Claim your complimentary copy of the <em>ApexBooks QuickStart &amp; Reading Guide</em>. Test checkout, explore the format, and access your digital bookshelf with zero payment required.
+              </p>
+            </div>
+            <Link
+              href="/books/apex-free-demo-guide"
+              className="z-10 py-3.5 px-6 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer shrink-0"
+            >
+              <span>Get Free Demo eBook</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>

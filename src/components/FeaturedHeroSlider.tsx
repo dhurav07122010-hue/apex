@@ -231,9 +231,8 @@ export function FeaturedHeroSlider({ books }: FeaturedHeroSliderProps) {
 
                 {/* Pricing Box */}
                 <div className="flex items-baseline gap-3 pt-0.5">
-                  <span className="text-2xl xl:text-3xl font-black text-[#0F1D36]">
-                    {siteConfig.currency.symbol}
-                    {currentBook.price}
+                  <span className={`text-2xl xl:text-3xl font-black ${currentBook.price === 0 ? "text-emerald-600" : "text-[#0F1D36]"}`}>
+                    {currentBook.price === 0 ? "FREE" : `${siteConfig.currency.symbol}${currentBook.price}`}
                   </span>
                   {currentBook.originalPrice && (
                     <>
@@ -267,7 +266,7 @@ export function FeaturedHeroSlider({ books }: FeaturedHeroSliderProps) {
                     onClick={handleBuyNow}
                     className="px-5 py-2.5 rounded-xl bg-[#0F2754] hover:bg-[#153D78] text-white font-bold text-xs flex items-center gap-1.5 shadow-md hover:shadow-lg transition-all cursor-pointer transform hover:-translate-y-0.5"
                   >
-                    <span>Buy Now</span>
+                    <span>{currentBook.price === 0 ? "Get Free Demo" : "Buy Now"}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
 

@@ -32,6 +32,9 @@ export function BookCard({ book, viewMode = "grid" }: BookCardProps) {
   // Badge styling
   const getBadgeStyle = (badge?: string) => {
     switch (badge?.toLowerCase()) {
+      case "free demo":
+      case "free":
+        return "bg-emerald-100 text-emerald-800 border-emerald-300 font-black";
       case "bestseller":
         return "bg-[#FEF08A] text-[#854D0E] border-[#FDE047]";
       case "featured":
@@ -101,9 +104,8 @@ export function BookCard({ book, viewMode = "grid" }: BookCardProps) {
 
             <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-black text-[#0F1D36]">
-                  {siteConfig.currency.symbol}
-                  {book.price}
+                <span className={`text-2xl font-black ${book.price === 0 ? "text-emerald-600" : "text-[#0F1D36]"}`}>
+                  {book.price === 0 ? "FREE" : `${siteConfig.currency.symbol}${book.price}`}
                 </span>
                 {book.originalPrice && (
                   <span className="text-xs text-slate-400 line-through">
@@ -207,9 +209,8 @@ export function BookCard({ book, viewMode = "grid" }: BookCardProps) {
         {/* Pricing Row & Action Buttons */}
         <div className="mt-3 pt-2.5 border-t border-[#F1F5F9] space-y-3">
           <div className="flex items-baseline gap-2">
-            <span className="text-lg font-black text-[#0F1D36]">
-              {siteConfig.currency.symbol}
-              {book.price}
+            <span className={`text-lg font-black ${book.price === 0 ? "text-emerald-600" : "text-[#0F1D36]"}`}>
+              {book.price === 0 ? "FREE" : `${siteConfig.currency.symbol}${book.price}`}
             </span>
             {book.originalPrice && (
               <span className="text-xs text-slate-400 line-through">

@@ -2,6 +2,56 @@ import { Book } from "@/types";
 
 export const MOCK_BOOKS: Book[] = [
   {
+    id: "b100-free-demo-guide",
+    slug: "apex-free-demo-guide",
+    title: "ApexBooks QuickStart: Free Demo Edition",
+    subtitle: "Official Complimentary eBook — Instant PDF Download & Digital Library Access",
+    author: "Apex Editorial Board",
+    authorBio: "The digital curriculum and reading science research team at ApexBooks.",
+    category: "other-digital-books",
+    categoryName: "Other Digital Books",
+    price: 0,
+    originalPrice: 299,
+    rating: 5.0,
+    reviewCount: 486,
+    publishedYear: 2026,
+    pageCount: 64,
+    fileSize: "2.4 MB",
+    language: "English",
+    format: "PDF",
+    isbn: "978-0-999-00001-0",
+    coverGradient: {
+      from: "#065F46",
+      to: "#059669",
+      accent: "#34D399",
+    },
+    badge: "Free Demo",
+    isFeatured: true,
+    isBestseller: true,
+    shortDescription: "Experience seamless digital reading with this complimentary full-featured demo eBook. Download instantly, preview formatting, and explore your personal digital bookshelf with zero payment required.",
+    description: `Welcome to ApexBooks! This official Free Demo Edition provides an instant, zero-cost way to test our digital reading platform, explore book layouts, verify download speed, and experience library access. Includes practical frameworks for deep focus, rapid comprehension, and digital bookshelf organization.
+
+Whether you are testing our checkout process or setting up your device for everyday reading, this complimentary volume delivers immediate value.`,
+    features: [
+      "100% Free Demo Edition with zero payment required",
+      "Instant digital delivery with secure download link",
+      "Comprehensive guide to active recall & cognitive retention",
+      "Fully compatible with all PDF readers, tablets, Kindles, and mobile phones",
+    ],
+    tableOfContents: [
+      "Chapter 1: The ApexBooks Digital Reading Experience",
+      "Chapter 2: Active Recall & The Feynman Note-Taking Method",
+      "Chapter 3: Building a High-Performance Digital Study System",
+      "Chapter 4: Digital Bookshelf Organization & Archiving",
+    ],
+    previewChapters: [
+      {
+        title: "Chapter 1: The ApexBooks Digital Reading Experience",
+        excerpt: `Reading digitally in the 21st century is more than just viewing text on glass—it is about synthesizing knowledge into action.\n\nAt ApexBooks, our mission is to eliminate barriers between curious minds and world-class literature. By offering instant digital delivery, lifetime access, and clean PDF formatting, we ensure that your learning journey remains distraction-free and deeply rewarding.\n\nThis complimentary eBook is our welcome gift to you. Use it to verify your download workflow, test your reading device, and jumpstart your lifelong reading habit.`,
+      },
+    ],
+  },
+  {
     id: "b101-atomic-habits",
     slug: "atomic-habits",
     title: "Atomic Habits",

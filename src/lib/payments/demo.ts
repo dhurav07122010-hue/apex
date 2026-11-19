@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { MOCK_BOOKS } from "@/data/mock-books";
 import crypto from "crypto";
 
 export interface DemoCheckoutItem {
@@ -23,13 +24,14 @@ export interface DemoCheckoutResult {
 }
 
 /**
- * Isolated Demo Payment Gateway Simulator
+ * Isolated Demo Payment Gateway Simulator & Digital Fulfillment
  *
  * Security & Integrity Guarantees:
  * 1. Checks `site_settings` to ensure demo checkout is enabled.
- * 2. Fetches REAL prices from database (ignores any client-submitted amounts to prevent tampering).
- * 3. Atomic transaction recording: `orders`, `order_items`, `payments`, `purchase_entitlements`.
- * 4. Distinctly labels order with 'DEMO' order prefix and payment method 'demo'.
+ * 2. Fetches authoritative prices from database.
+ * 3. Self-healing fallback: seamlessly auto-provisions catalog eBooks if not yet seeded.
+ * 4. Atomic transaction recording: `orders`, `order_items`, `payments`, `purchase_entitlements`.
+ * 5. Distinctly labels order with 'DEMO' order prefix and payment method.
  */
 export async function processDemoOrder(
   input: DemoCheckoutInput
@@ -66,9 +68,13 @@ export async function processDemoOrder(
   const isUuid = (val: string) =>
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
 
-  const uuidList = items.map((i) => i.id).filter(isUuid);
+  const uuidList = items
+    .map((i) => (isUuid(i.id) ? i.id : null))
+    .filter(Boolean) as string[];
+
+  // Support slugs directly or strip 'b101-' mock ID prefix
   const slugList = items
-    .map((i) => i.slug || (!isUuid(i.id) ? i.id : null))
+    .map((i) => i.slug || (!isUuid(i.id) ? i.id.replace(/^b\d+-/, "") : null))
     .filter(Boolean) as string[];
 
   let dbProducts: any[] = [];
@@ -92,6 +98,71 @@ export async function processDemoOrder(
     dbProducts = data || [];
   }
 
+  // 3b. Self-Healing Fallback: Auto-provision any missing mock books into products table
+  const foundSlugs = new Set(dbProducts.map((p) => p.slug));
+  const foundIds = new Set(dbProducts.map((p) => p.id));
+
+  for (const item of items) {
+    const candidateSlug =
+      item.slug || (!isUuid(item.id) ? item.id.replace(/^b\d+-/, "") : item.id);
+
+    if (!foundSlugs.has(candidateSlug) && !foundIds.has(item.id)) {
+      const mockBook = MOCK_BOOKS.find(
+        (b) =>
+          b.slug === candidateSlug ||
+          b.id === item.id ||
+          b.slug === item.id ||
+          b.id.replace(/^b\d+-/, "") === candidateSlug
+      );
+
+      if (mockBook) {
+        let cat = mockBook.category || "other-digital-books";
+        if (cat === "fiction-literature") cat = "fiction";
+        else if (cat === "business-finance") cat = "business";
+        else if (cat === "education-learning") cat = "education";
+        else if (cat === "competitive-exams") cat = "competitive-examinations";
+
+        const { data: inserted } = await adminDb
+          .from("products")
+          .upsert(
+            {
+              slug: mockBook.slug,
+              title: mockBook.title,
+              subtitle: mockBook.subtitle || "",
+              author: mockBook.author,
+              author_bio: mockBook.authorBio || "",
+              category_id: cat,
+              price: Number(mockBook.price || 0),
+              original_price: Number(mockBook.originalPrice || 299),
+              rating: Number(mockBook.rating || 5.0),
+              review_count: Number(mockBook.reviewCount || 100),
+              published_year: Number(mockBook.publishedYear || 2026),
+              page_count: Number(mockBook.pageCount || 100),
+              file_size: mockBook.fileSize || "5 MB",
+              language: mockBook.language || "English",
+              format: mockBook.format || "PDF",
+              isbn: mockBook.isbn || "",
+              badge: mockBook.badge || "",
+              short_description: mockBook.shortDescription || mockBook.title,
+              description: mockBook.description || mockBook.shortDescription,
+              features: mockBook.features || [],
+              storage_path: "sample-apexbook.pdf",
+              is_published: true,
+            },
+            { onConflict: "slug" }
+          )
+          .select("id, title, price, is_published, slug")
+          .single();
+
+        if (inserted) {
+          dbProducts.push(inserted);
+          foundSlugs.add(inserted.slug);
+          foundIds.add(inserted.id);
+        }
+      }
+    }
+  }
+
   if (!dbProducts || dbProducts.length === 0) {
     return {
       success: false,
@@ -106,6 +177,7 @@ export async function processDemoOrder(
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const randomSuffix = crypto.randomBytes(3).toString("hex").toUpperCase();
   const orderNumber = `DEMO-ORD-${dateStr}-${randomSuffix}`;
+  const isFreeClaim = verifiedTotal === 0;
 
   // 5. Create Order in Database
   const { data: order, error: orderErr } = await adminDb
@@ -117,12 +189,14 @@ export async function processDemoOrder(
       customer_name: customerName || customerEmail.split("@")[0],
       total_amount: verifiedTotal,
       currency: "INR",
-      status: "paid", // Instantly captured in demo simulator
+      status: "paid", // Instantly captured in demo / free claim
       payment_method: "demo",
       metadata: {
-        mode: "isolated_demo_simulator",
+        mode: isFreeClaim ? "free_demo_claim" : "isolated_demo_simulator",
         timestamp: new Date().toISOString(),
-        demo_note: "Test sandbox order with zero real monetary charge",
+        demo_note: isFreeClaim
+          ? "Complimentary free demo eBook order"
+          : "Test sandbox order with zero real monetary charge",
       },
     })
     .select("id")
@@ -146,17 +220,20 @@ export async function processDemoOrder(
   }
 
   // 7. Record Payment Transaction
-  const demoPaymentId = `demo_pay_${crypto.randomBytes(8).toString("hex")}`;
+  const demoPaymentId = isFreeClaim
+    ? `free_claim_${crypto.randomBytes(8).toString("hex")}`
+    : `demo_pay_${crypto.randomBytes(8).toString("hex")}`;
+
   await adminDb.from("payments").insert({
     order_id: order.id,
     gateway: "demo",
     gateway_payment_id: demoPaymentId,
-    gateway_signature: "demo_signature_valid",
+    gateway_signature: isFreeClaim ? "free_claim_valid" : "demo_signature_valid",
     amount: verifiedTotal,
     currency: "INR",
     status: "captured",
     raw_response: {
-      simulator: "ApexBooks Demo Sandbox",
+      simulator: isFreeClaim ? "ApexBooks Free Demo Claim" : "ApexBooks Demo Sandbox",
       captured: true,
       timestamp: new Date().toISOString(),
     },
@@ -173,7 +250,7 @@ export async function processDemoOrder(
     max_downloads: 50,
   }));
 
-  // Upsert to avoid unique constraint conflict if customer already bought the book
+  // Upsert to avoid unique constraint conflict if customer already claimed/bought the book
   await adminDb
     .from("purchase_entitlements")
     .upsert(entitlementsData, { onConflict: "customer_email,product_id" });
