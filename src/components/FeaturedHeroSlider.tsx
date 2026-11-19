@@ -315,21 +315,14 @@ export function FeaturedHeroSlider({ books }: FeaturedHeroSliderProps) {
 
               {/* Right Column: 3D Book Cover on Podium (5 Cols) */}
               <div className="lg:col-span-5 flex flex-col items-center justify-center">
-                <div
-                  className="relative group cursor-pointer"
-                  onClick={() => setPreviewBook(currentBook)}
+                <Link
+                  href={`/books/${currentBook.slug}`}
+                  className="relative block"
                 >
-                  <div className="absolute inset-0 bg-[#FDB813]/25 rounded-full blur-2xl transform scale-110 -z-10 group-hover:scale-125 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-[#FDB813]/25 rounded-full blur-2xl transform scale-110 -z-10" />
 
-                  <div className="relative transform group-hover:-translate-y-1.5 transition-transform duration-300 shadow-2xl rounded-lg">
+                  <div className="relative shadow-2xl rounded-lg">
                     <BookCover book={currentBook} size="md" />
-
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-md flex items-center justify-center">
-                      <span className="px-3 py-1.5 rounded-full bg-white/95 text-[#0F2754] text-[11px] font-bold shadow-lg flex items-center gap-1">
-                        <BookOpen className="w-3 h-3 text-[#FDB813]" />
-                        Read Sample
-                      </span>
-                    </div>
                   </div>
 
                   {discountPercent > 0 && (
@@ -339,7 +332,7 @@ export function FeaturedHeroSlider({ books }: FeaturedHeroSliderProps) {
                   )}
 
                   <div className="w-36 h-3 bg-gradient-to-r from-transparent via-slate-400/30 to-transparent blur-xs mx-auto mt-2 rounded-full" />
-                </div>
+                </Link>
 
                 <Link
                   href={`/books/${currentBook.slug}`}

@@ -313,7 +313,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Book Thumbnail */}
-                <div className="shrink-0 transition-transform duration-300 group-hover:scale-105">
+                <div className="shrink-0">
                   <BookCover book={book} size="xs" showBadge={false} />
                 </div>
 

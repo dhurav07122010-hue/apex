@@ -187,21 +187,10 @@ export function BookCard({ book, viewMode = "grid" }: BookCardProps) {
           <div className="relative flex justify-center py-2 overflow-hidden mb-3">
             <Link
               href={`/books/${book.slug}`}
-              className="transition-transform duration-300 group-hover:scale-105"
+              className="block"
             >
               <BookCover book={book} size="md" />
             </Link>
-
-            {/* Quick Preview Hover Button */}
-            <button
-              type="button"
-              onClick={() => setIsPreviewOpen(true)}
-              className="absolute bottom-2 right-4 px-2 py-1 rounded-md bg-white/95 backdrop-blur-sm text-slate-700 hover:text-[#0F2754] text-[11px] font-semibold shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 cursor-pointer border border-slate-200"
-              title="Preview Sample"
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>Preview</span>
-            </button>
           </div>
 
           {/* Title & Author */}
