@@ -67,3 +67,15 @@ body {
   transform: translateY(-4px);
   box-shadow: 0 20px 30px -10px rgba(21, 61, 120, 0.22), 0 10px 12px -5px rgba(21, 61, 120, 0.12);
 }
+
+/* Hide Next.js development indicator bubble */
+nextjs-portal,
+#nextjs-dev-indicator,
+[data-nextjs-dev-indicator],
+[data-nextjs-toast-wrapper],
+[data-nextjs-dialog-overlay] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
