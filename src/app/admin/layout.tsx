@@ -1,6 +1,6 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { validateAdminSession, AUTHORIZED_ADMIN_EMAIL } from "@/lib/auth/admin";
+import { validateAdminSession } from "@/lib/auth/admin";
 import { AdminNav } from "@/components/admin/AdminNav";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ export default async function AdminLayout({
     redirect(
       "/auth/signin?redirect=/admin&error=" +
         encodeURIComponent(
-          authResult.error || "Please sign in with your authorized Gmail to access the admin panel."
+          authResult.error || "Please sign in with your authorized Google account to access the admin panel."
         )
     );
   }
@@ -30,7 +30,7 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-zinc-50/80 dark:bg-zinc-950 flex flex-col md:flex-row">
       {/* Responsive Navigation: Mobile Top Bar + Drawer & Desktop Sticky Sidebar */}
-      <AdminNav adminEmail={authResult.user?.email} />
+      <AdminNav initialRemainingMs={authResult.remainingMs} />
 
       {/* Main Admin Content Body */}
       <main className="flex-1 p-4 sm:p-6 md:p-8 min-w-0 max-w-full overflow-x-hidden">

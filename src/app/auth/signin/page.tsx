@@ -10,7 +10,6 @@ import {
   Mail,
   Lock,
   User,
-  ShieldCheck,
   ArrowRight,
   AlertCircle,
   CheckCircle2,
@@ -82,7 +81,8 @@ function SignInForm() {
           );
           setTimeout(() => router.push("/account"), 1500);
         } else {
-          router.push(redirectPath);
+          const dest = redirectPath.startsWith("/admin") ? "/account" : redirectPath;
+          router.push(dest);
         }
       } else {
         // Sign Up
@@ -103,7 +103,8 @@ function SignInForm() {
         }
 
         if (data.session) {
-          router.push(redirectPath);
+          const dest = redirectPath.startsWith("/admin") ? "/account" : redirectPath;
+          router.push(dest);
         } else {
           setSuccessMessage(
             "Account created successfully! Check your email to confirm your account."
@@ -295,25 +296,6 @@ function SignInForm() {
           <ArrowRight className="w-4 h-4" />
         </button>
       </form>
-
-      {/* Security Rule Ribbon */}
-      <div className="pt-2 p-3 rounded-2xl bg-[#EAF3FF] border border-[#2878D0]/30 text-[11px] text-slate-600 space-y-1">
-        <div className="flex items-center gap-1.5 font-bold text-[#153D78]">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#153D78]" />
-          <span>Administrator Security Rule:</span>
-        </div>
-        <p>
-          Admin access is strictly gated by Google OAuth for verified email{" "}
-          <code className="text-[#153D78] font-mono font-bold">
-            dhurav07122010@gmail.com
-          </code>{" "}
-          /{" "}
-          <code className="text-[#153D78] font-mono font-bold">
-            dhuruv07122010@gmail.com
-          </code>
-          . Passwords cannot unlock admin access.
-        </p>
-      </div>
     </div>
   );
 }

@@ -1,14 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { cookies } from "next/headers";
 import { User } from "@supabase/supabase-js";
-
 import { AUTHORIZED_ADMIN_EMAIL, AUTHORIZED_ADMIN_EMAILS, isAuthorizedAdminEmail } from "@/config/site";
+import {
+  verifyAdminSession,
+  ADMIN_SESSION_COOKIE_NAME,
+} from "./adminSession";
+
 export { AUTHORIZED_ADMIN_EMAIL, AUTHORIZED_ADMIN_EMAILS, isAuthorizedAdminEmail };
 
 export interface AdminValidationResult {
   authorized: boolean;
   error?: string;
   user?: User;
+  remainingMs?: number;
 }
 
 /**
@@ -16,10 +22,10 @@ export interface AdminValidationResult {
  *
  * Strict Security Guarantees:
  * 1. Cryptographically validates session with Supabase Auth Server.
- * 2. Enforces exact email allowlist: dhurav07122010@gmail.com.
+ * 2. Enforces exact email allowlist.
  * 3. Enforces Google OAuth only: permanently rejects password/email-only sessions.
  * 4. Validates active allowlist record in Postgres database table.
- * 5. Rejects any client-supplied role or header.
+ * 5. Enforces 240-second (4-minute) strict session TTL.
  */
 export async function validateAdminUser(
   user: Partial<User> | null
@@ -33,11 +39,11 @@ export async function validateAdminUser(
 
   const email = user.email?.toLowerCase().trim();
 
-  // 1. Exact email allowlist check (supports authorized admin email accounts)
+  // 1. Exact email allowlist check
   if (!isAuthorizedAdminEmail(email)) {
     return {
       authorized: false,
-      error: `Forbidden: Email '${email}' is not authorized for administrator access.`,
+      error: "Forbidden: This account is not authorized for administrator access.",
     };
   }
 
@@ -67,8 +73,7 @@ export async function validateAdminUser(
   if (dbError || !allowlistEntry) {
     return {
       authorized: false,
-      error:
-        `Forbidden: Admin email '${email}' is not registered or is deactivated in server allowlist database.`,
+      error: "Forbidden: Administrator privileges are inactive or not registered in the database allowlist.",
     };
   }
 
@@ -81,9 +86,27 @@ export async function validateAdminUser(
 
 export async function validateAdminSession(): Promise<AdminValidationResult> {
   try {
-    const supabase = await createClient();
+    // 1. Check strict 240s session token
+    let sessionToken: string | undefined;
+    try {
+      const cookieStore = await cookies();
+      sessionToken = cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value;
+    } catch {
+      // Cookies may be unavailable in some mock contexts
+    }
 
-    // Fetch user from server-side session (cryptographically verified by Supabase)
+    const sessionCheck = await verifyAdminSession(sessionToken);
+    if (!sessionCheck.valid) {
+      return {
+        authorized: false,
+        error:
+          sessionCheck.error ||
+          "Admin session expired (4-minute security window). Please sign in again.",
+      };
+    }
+
+    // 2. Fetch user from server-side session (cryptographically verified by Supabase)
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -96,7 +119,15 @@ export async function validateAdminSession(): Promise<AdminValidationResult> {
       };
     }
 
-    return validateAdminUser(user);
+    const userValidation = await validateAdminUser(user);
+    if (!userValidation.authorized) {
+      return userValidation;
+    }
+
+    return {
+      ...userValidation,
+      remainingMs: sessionCheck.remainingMs,
+    };
   } catch (err: any) {
     return {
       authorized: false,

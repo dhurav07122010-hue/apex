@@ -1,5 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  verifyAdminSession,
+  ADMIN_SESSION_COOKIE_NAME,
+  ADMIN_EXPIRES_COOKIE_NAME,
+} from "@/lib/auth/adminSession";
+import { isAuthorizedAdminEmail } from "@/config/site";
 
 export async function middleware(request: NextRequest) {
   // Check if any supabase auth cookie exists
@@ -59,25 +65,42 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // If accessing /admin, enforce strict admin email authorization
+  // If accessing /admin, enforce both 240s session TTL and authorized admin identity
   if (pathname.startsWith("/admin")) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // 1. Strict 240-second Ephemeral Session Verification
+    const sessionToken = request.cookies.get(ADMIN_SESSION_COOKIE_NAME)?.value;
+    const sessionCheck = await verifyAdminSession(sessionToken);
 
-    const authorizedAdminEmails = [
-      "dhurav07122010@gmail.com",
-      "dhuruv07122010@gmail.com",
-    ];
-    const userEmail = user?.email?.toLowerCase().trim();
-    if (!user || !userEmail || !authorizedAdminEmails.includes(userEmail)) {
+    if (!sessionCheck.valid) {
       const signInUrl = new URL("/auth/signin", request.url);
       signInUrl.searchParams.set("redirect", "/admin");
       signInUrl.searchParams.set(
         "error",
-        "Admin access requires signing in with your authorized Gmail."
+        "Admin session expired (4-minute security window). Please sign in again."
       );
-      return NextResponse.redirect(signInUrl);
+      const redirectResponse = NextResponse.redirect(signInUrl);
+      redirectResponse.cookies.delete(ADMIN_SESSION_COOKIE_NAME);
+      redirectResponse.cookies.delete(ADMIN_EXPIRES_COOKIE_NAME);
+      return redirectResponse;
+    }
+
+    // 2. Cryptographic Supabase User Verification
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const userEmail = user?.email?.toLowerCase().trim();
+    if (!user || !userEmail || !isAuthorizedAdminEmail(userEmail)) {
+      const signInUrl = new URL("/auth/signin", request.url);
+      signInUrl.searchParams.set("redirect", "/admin");
+      signInUrl.searchParams.set(
+        "error",
+        "Admin access requires signing in with an authorized administrator account."
+      );
+      const redirectResponse = NextResponse.redirect(signInUrl);
+      redirectResponse.cookies.delete(ADMIN_SESSION_COOKIE_NAME);
+      redirectResponse.cookies.delete(ADMIN_EXPIRES_COOKIE_NAME);
+      return redirectResponse;
     }
   } else if (hasAuthCookie || isProtectedPath) {
     await supabase.auth.getUser();

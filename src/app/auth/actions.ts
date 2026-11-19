@@ -74,6 +74,10 @@ export async function signUpWithEmail(formData: FormData) {
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import {
+  ADMIN_SESSION_COOKIE_NAME,
+  ADMIN_EXPIRES_COOKIE_NAME,
+} from "@/lib/auth/adminSession";
 
 export async function signOut() {
   try {
@@ -90,11 +94,15 @@ export async function signOut() {
       if (
         c.name.startsWith("sb-") ||
         c.name.includes("auth-token") ||
-        c.name.includes("supabase")
+        c.name.includes("supabase") ||
+        c.name === ADMIN_SESSION_COOKIE_NAME ||
+        c.name === ADMIN_EXPIRES_COOKIE_NAME
       ) {
         cookieStore.delete(c.name);
       }
     }
+    cookieStore.delete(ADMIN_SESSION_COOKIE_NAME);
+    cookieStore.delete(ADMIN_EXPIRES_COOKIE_NAME);
   } catch (err) {
     console.error("Error wiping cookies in signOut action:", err);
   }

@@ -20,6 +20,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Clock,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { AdminSignOutButton } from "@/components/AdminSignOutButton";
@@ -38,12 +39,58 @@ export const adminNavItems = [
 ];
 
 interface AdminNavProps {
-  adminEmail?: string | null;
+  initialRemainingMs?: number;
 }
 
-export function AdminNav({ adminEmail }: AdminNavProps) {
+export function AdminNav({ initialRemainingMs }: AdminNavProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // 240-second Ephemeral Session Countdown Timer
+  const [secondsLeft, setSecondsLeft] = useState<number>(() => {
+    if (initialRemainingMs && initialRemainingMs > 0) {
+      return Math.min(240, Math.floor(initialRemainingMs / 1000));
+    }
+    return 240;
+  });
+
+  useEffect(() => {
+    // Synchronize with cookie timestamp if present
+    if (typeof document !== "undefined") {
+      const match = document.cookie.match(/apex_admin_expires_at=(\d+)/);
+      if (match && match[1]) {
+        const exp = parseInt(match[1], 10);
+        const rem = Math.floor((exp - Date.now()) / 1000);
+        if (rem >= 0) {
+          setSecondsLeft(Math.min(240, rem));
+        }
+      }
+    }
+
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          // Invalidate and prompt re-authentication when 240 seconds elapse
+          window.location.href =
+            "/auth/signin?redirect=/admin&error=" +
+            encodeURIComponent(
+              "Your admin session has expired (4-minute security window). Please sign in again."
+            );
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatTime = (totalSeconds: number) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -124,9 +171,24 @@ export function AdminNav({ adminEmail }: AdminNavProps) {
             </span>
           </div>
 
-          <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
-            <ShieldCheck className="w-3 h-3" />
-            <span>OAuth Secure</span>
+          <div className="flex items-center gap-2">
+            {/* Live 240s countdown badge */}
+            <div
+              className={`flex items-center gap-1 font-mono text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                secondsLeft <= 60
+                  ? "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 animate-pulse"
+                  : "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300"
+              }`}
+              title="Active Admin Session Window (240s Security TTL)"
+            >
+              <Clock className="w-3 h-3" />
+              <span>{formatTime(secondsLeft)}</span>
+            </div>
+
+            <div className="hidden sm:flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+              <ShieldCheck className="w-3 h-3" />
+              <span>OAuth</span>
+            </div>
           </div>
         </div>
       </header>
@@ -209,8 +271,8 @@ export function AdminNav({ adminEmail }: AdminNavProps) {
             {/* Drawer Footer */}
             <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 space-y-3">
               <div className="text-[11px] text-zinc-500">
-                <p className="font-bold text-zinc-700 dark:text-zinc-300">Logged in as Admin</p>
-                <p className="font-mono text-zinc-400 truncate">{adminEmail}</p>
+                <p className="font-bold text-zinc-700 dark:text-zinc-300">Authorized Admin</p>
+                <p className="text-[10px] text-zinc-400">Strict 240s Active Session</p>
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-zinc-800">
@@ -256,10 +318,27 @@ export function AdminNav({ adminEmail }: AdminNavProps) {
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Google OAuth Verified</span>
             </div>
+
+            {/* 240-Second Ephemeral Session Countdown */}
+            <div
+              className={`mt-2 flex items-center justify-between px-2.5 py-1.5 rounded-xl border text-[11px] ${
+                secondsLeft <= 60
+                  ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 animate-pulse"
+                  : "bg-blue-50/70 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300"
+              }`}
+            >
+              <div className="flex items-center gap-1.5 font-semibold">
+                <Clock className="w-3.5 h-3.5" />
+                <span>Session:</span>
+              </div>
+              <span className="font-mono font-bold tracking-wider">
+                {formatTime(secondsLeft)}
+              </span>
+            </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-190px)]">
+          <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-210px)]">
             {adminNavItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -297,8 +376,8 @@ export function AdminNav({ adminEmail }: AdminNavProps) {
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 space-y-3 bg-zinc-50/50 dark:bg-zinc-950/30">
           <div className="text-[11px] text-zinc-400 truncate">
-            <p className="font-semibold text-zinc-700 dark:text-zinc-300">Admin Account</p>
-            <p className="font-mono truncate">{adminEmail}</p>
+            <p className="font-semibold text-zinc-700 dark:text-zinc-300">Authorized Admin</p>
+            <p className="text-[10px] text-zinc-400">Strict 240s Active Session</p>
           </div>
 
           <div className="flex items-center justify-between gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
