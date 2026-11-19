@@ -13,7 +13,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
-import { signOut } from "@/app/auth/actions";
+import { AdminSignOutButton } from "@/components/AdminSignOutButton";
 
 export const metadata = {
   title: "My Account & Bookshelf — ApexBooks",
@@ -106,15 +106,7 @@ export default async function AccountPage() {
             </Link>
           )}
 
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out</span>
-            </button>
-          </form>
+          <AdminSignOutButton className="px-4 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-semibold" />
         </div>
       </div>
 

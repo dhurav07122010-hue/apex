@@ -24,7 +24,44 @@ export default async function AdminDownloadsPage() {
         </p>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+      {/* Mobile Download Logs View (Screens < 768px) */}
+      <div className="md:hidden space-y-3">
+        {!logs || logs.length === 0 ? (
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8 text-center text-zinc-400 text-xs">
+            No download activity recorded yet.
+          </div>
+        ) : (
+          logs.map((log) => (
+            <div
+              key={log.id}
+              className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-xs space-y-2.5 text-xs"
+            >
+              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 line-clamp-1">
+                {log.product?.title || "eBook File"}
+              </h3>
+
+              <div className="space-y-1 text-[11px] text-zinc-500">
+                <p className="font-mono text-zinc-700 dark:text-zinc-300 truncate">
+                  User: {log.customer_email}
+                </p>
+                <p className="font-mono text-zinc-400">
+                  IP: {log.ip_address || "127.0.0.1"}
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-[10px] text-zinc-400">
+                <span className="truncate max-w-[150px]">
+                  {log.user_agent ? log.user_agent.split(" ")[0] : "Browser"}
+                </span>
+                <span>{new Date(log.downloaded_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Download Logs Table (Screens >= 768px) */}
+      <div className="hidden md:block bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>

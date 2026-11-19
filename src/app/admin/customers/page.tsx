@@ -24,7 +24,51 @@ export default async function AdminCustomersPage() {
         </p>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+      {/* Mobile Customers Card View (Screens < 768px) */}
+      <div className="md:hidden space-y-3">
+        {!profiles || profiles.length === 0 ? (
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8 text-center text-zinc-400 text-xs">
+            No customer accounts registered yet.
+          </div>
+        ) : (
+          profiles.map((user) => {
+            const ownedCount =
+              entitlements?.filter(
+                (e) =>
+                  e.customer_email &&
+                  user.email &&
+                  e.customer_email.toLowerCase() === user.email.toLowerCase()
+              ).length || 0;
+
+            return (
+              <div
+                key={user.id}
+                className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-xs space-y-2 text-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
+                    {user.full_name || "Reader"}
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+                    {ownedCount} books
+                  </span>
+                </div>
+
+                <p className="font-mono text-zinc-500 text-[11px] truncate">
+                  {user.email}
+                </p>
+
+                <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 text-[10px] text-zinc-400">
+                  Joined {new Date(user.created_at).toLocaleDateString()}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop Customers Table (Screens >= 768px) */}
+      <div className="hidden md:block bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>

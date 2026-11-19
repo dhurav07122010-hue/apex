@@ -71,8 +71,33 @@ export async function signUpWithEmail(formData: FormData) {
   };
 }
 
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+
 export async function signOut() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  try {
+    const supabase = await createClient();
+    await supabase.auth.signOut({ scope: "local" });
+  } catch (err) {
+    console.error("Supabase signOut error in server action:", err);
+  }
+
+  try {
+    const cookieStore = await cookies();
+    const all = cookieStore.getAll();
+    for (const c of all) {
+      if (
+        c.name.startsWith("sb-") ||
+        c.name.includes("auth-token") ||
+        c.name.includes("supabase")
+      ) {
+        cookieStore.delete(c.name);
+      }
+    }
+  } catch (err) {
+    console.error("Error wiping cookies in signOut action:", err);
+  }
+
+  revalidatePath("/", "layout");
   redirect("/auth/signin");
 }

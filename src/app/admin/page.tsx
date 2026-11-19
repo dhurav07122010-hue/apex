@@ -216,7 +216,7 @@ export default async function AdminOverviewPage() {
                     <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100">
                       {o.order_number}
                     </span>
-                    <p className="text-[11px] text-zinc-400 truncate max-w-[180px]">
+                    <p className="text-[11px] text-zinc-400 truncate max-w-[130px] sm:max-w-[180px]">
                       {o.customer_email}
                     </p>
                   </div>

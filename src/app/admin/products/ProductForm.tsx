@@ -109,7 +109,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl pb-16">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Link
             href="/admin/products"
@@ -118,7 +118,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-black text-zinc-900 dark:text-zinc-50">
+            <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-zinc-50">
               {initialData ? "Edit eBook Product" : "Add New eBook"}
             </h1>
             <p className="text-xs text-zinc-500">
@@ -130,7 +130,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
         >
           <Save className="w-4 h-4" />
           <span>{loading ? "Saving..." : "Save eBook"}</span>

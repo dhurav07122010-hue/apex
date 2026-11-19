@@ -52,9 +52,9 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl pb-12">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-zinc-50">
             Store & Security Settings
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5">
@@ -65,7 +65,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
         >
           <Save className="w-4 h-4" />
           <span>{loading ? "Saving..." : "Save Settings"}</span>

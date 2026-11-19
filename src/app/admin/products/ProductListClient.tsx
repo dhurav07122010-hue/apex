@@ -91,8 +91,97 @@ export function ProductListClient({ initialProducts }: ProductListClientProps) {
         />
       </div>
 
-      {/* Products Table */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+      {/* Mobile Product Cards View (Visible on screens < 768px) */}
+      <div className="md:hidden space-y-3">
+        {filtered.length === 0 ? (
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8 text-center text-zinc-400 text-xs">
+            No eBooks match your filter.
+          </div>
+        ) : (
+          filtered.map((book) => (
+            <div
+              key={book.id}
+              className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-xs space-y-3"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 capitalize truncate max-w-[180px]">
+                  {book.category_id}
+                </span>
+
+                <button
+                  type="button"
+                  disabled={actionLoading === book.id}
+                  onClick={() => handleTogglePublish(book.id, book.is_published)}
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all cursor-pointer shrink-0 ${
+                    book.is_published
+                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                      : "bg-zinc-200 text-zinc-700 dark:bg-zinc-800"
+                  }`}
+                >
+                  {book.is_published ? "Published" : "Draft"}
+                </button>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 line-clamp-2">
+                  {book.title}
+                </h3>
+                <p className="text-xs text-zinc-400 mt-0.5">By {book.author}</p>
+              </div>
+
+              <div className="flex items-center justify-between text-xs pt-1 border-t border-zinc-100 dark:border-zinc-800">
+                <div>
+                  <span className="font-mono text-zinc-400 text-[11px] block">
+                    {book.format} • {book.file_size || "Digital"}
+                  </span>
+                  <div className="flex items-baseline gap-1 mt-0.5">
+                    <span className="font-black text-sm text-zinc-900 dark:text-zinc-100">
+                      {siteConfig.currency.symbol}{book.price}
+                    </span>
+                    {book.original_price && (
+                      <span className="text-[10px] text-zinc-400 line-through">
+                        {siteConfig.currency.symbol}{book.original_price}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <Link
+                    href={`/books/${book.slug}`}
+                    target="_blank"
+                    className="p-2 rounded-xl text-zinc-600 dark:text-zinc-300 hover:text-blue-600 bg-zinc-100 dark:bg-zinc-800 transition-colors"
+                    title="View"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </Link>
+
+                  <Link
+                    href={`/admin/products/${book.id}/edit`}
+                    className="p-2 rounded-xl text-zinc-600 dark:text-zinc-300 hover:text-blue-600 bg-zinc-100 dark:bg-zinc-800 transition-colors"
+                    title="Edit"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Link>
+
+                  <button
+                    type="button"
+                    disabled={actionLoading === book.id}
+                    onClick={() => handleDelete(book.id, book.title)}
+                    className="p-2 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 bg-zinc-100 dark:bg-zinc-800 transition-colors cursor-pointer"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Products Table (Visible on screens >= 768px) */}
+      <div className="hidden md:block bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
