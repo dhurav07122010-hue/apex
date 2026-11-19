@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import Razorpay from "razorpay";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { generateDownloadToken } from "@/lib/delivery/vault";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 /**
  * Initializes Razorpay Instance with Server-side Environment Keys
@@ -125,7 +127,7 @@ export async function processIdempotentWebhookEvent(
         // Fetch order details to grant entitlements
         const { data: orderDetails } = await adminDb
           .from("orders")
-          .select("customer_email, user_id, items:order_items(product_id)")
+          .select("order_number, total_amount, customer_email, user_id, items:order_items(product_id, products(id, title, author, price))")
           .eq("id", paymentRecord.order_id)
           .single();
 
@@ -143,6 +145,44 @@ export async function processIdempotentWebhookEvent(
           await adminDb
             .from("purchase_entitlements")
             .upsert(entitlements, { onConflict: "customer_email,product_id" });
+
+          // Dispatch confirmation email with signed download links
+          try {
+            const { data: createdEnts } = await adminDb
+              .from("purchase_entitlements")
+              .select("id, product_id")
+              .eq("order_id", paymentRecord.order_id);
+
+            const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://apex-chi-sandy.vercel.app";
+
+            const emailItems = (orderDetails.items as any[]).map((item) => {
+              const prod = item.products || {};
+              const ent = createdEnts?.find((e) => e.product_id === item.product_id);
+              let downloadUrl: string | undefined;
+              if (ent) {
+                const token = generateDownloadToken(ent.id, orderDetails.customer_email);
+                downloadUrl = `${siteUrl}/api/downloads/${ent.id}?token=${token}&redirect=true`;
+              }
+              return {
+                id: item.product_id,
+                title: prod.title || "Purchased eBook",
+                author: prod.author || "ApexBooks",
+                price: prod.price || 0,
+                entitlementId: ent?.id,
+                downloadUrl,
+              };
+            });
+
+            sendOrderConfirmationEmail({
+              orderNumber: orderDetails.order_number || `ORD-${paymentRecord.order_id.slice(0, 8)}`,
+              customerName: "Valued Customer",
+              customerEmail: orderDetails.customer_email,
+              items: emailItems,
+              totalAmount: orderDetails.total_amount || 0,
+            }).catch((err) => console.error("[RazorpayWebhook] Email dispatch failed:", err));
+          } catch (emailErr) {
+            console.error("[RazorpayWebhook] Failed preparing email:", emailErr);
+          }
         }
       }
     }

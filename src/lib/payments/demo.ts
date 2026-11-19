@@ -1,5 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MOCK_BOOKS } from "@/data/mock-books";
+import { generateDownloadToken } from "@/lib/delivery/vault";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 import crypto from "crypto";
 
 export interface DemoCheckoutItem {
@@ -254,6 +256,43 @@ export async function processDemoOrder(
   await adminDb
     .from("purchase_entitlements")
     .upsert(entitlementsData, { onConflict: "customer_email,product_id" });
+
+  // 9. Dispatch Customer Confirmation Email with Signed Download Links
+  try {
+    const { data: createdEntitlements } = await adminDb
+      .from("purchase_entitlements")
+      .select("id, product_id")
+      .eq("order_id", order.id);
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://apex-chi-sandy.vercel.app";
+
+    const emailItems = dbProducts.map((p) => {
+      const ent = createdEntitlements?.find((e) => e.product_id === p.id);
+      let downloadUrl: string | undefined;
+      if (ent) {
+        const token = generateDownloadToken(ent.id, customerEmail);
+        downloadUrl = `${siteUrl}/api/downloads/${ent.id}?token=${token}&redirect=true`;
+      }
+      return {
+        id: p.id,
+        title: p.title,
+        author: p.author || "ApexBooks",
+        price: p.price,
+        entitlementId: ent?.id,
+        downloadUrl,
+      };
+    });
+
+    sendOrderConfirmationEmail({
+      orderNumber,
+      customerName: input.customerName || "Valued Reader",
+      customerEmail,
+      items: emailItems,
+      totalAmount: verifiedTotal,
+    }).catch((err) => console.error("[DemoCheckout] Order confirmation email dispatch error:", err));
+  } catch (err) {
+    console.error("[DemoCheckout] Failed preparing order confirmation email:", err);
+  }
 
   return {
     success: true,
