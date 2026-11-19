@@ -27,6 +27,11 @@ export interface SiteConfig {
     name: string;
     href: string;
   }[];
+  announcement?: string;
+  policyLinks?: {
+    name: string;
+    href: string;
+  }[];
   features: {
     title: string;
     description: string;
@@ -131,10 +136,20 @@ export const siteConfig: SiteConfig = {
     },
   ],
   navLinks: [
-    { name: "Storefront", href: "/books" },
+    { name: "Home", href: "/" },
+    { name: "eBooks", href: "/books" },
+    { name: "Physical Books", href: "/books?format=physical" },
     { name: "Categories", href: "/categories" },
     { name: "Bestsellers", href: "/books?sort=bestseller" },
-    { name: "Free Previews", href: "/books?filter=free-sample" },
+    { name: "New Arrivals", href: "/books?sort=newest" },
+    { name: "About Us", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ],
+  announcement: "⚡ Instant Digital Delivery on all eBooks • 100% Verified Files • Free Sample Previews",
+  policyLinks: [
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms & Conditions", href: "/terms" },
+    { name: "Refund Policy", href: "/refund" },
   ],
   features: [
     {

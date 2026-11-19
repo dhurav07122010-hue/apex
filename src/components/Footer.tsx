@@ -5,73 +5,68 @@ import Link from "next/link";
 import Image from "next/image";
 import { siteConfig } from "@/config/site";
 import {
-  BookOpen,
   ShieldCheck,
   Zap,
   Lock,
   Mail,
-  Heart,
+  Headphones,
+  CreditCard,
+  BookOpen,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 text-xs">
-      {/* Value Proposition Ribbon */}
-      <div className="border-b border-zinc-200 dark:border-zinc-850 py-8 bg-white dark:bg-zinc-900/50">
+    <footer className="bg-[#153D78] text-slate-300 text-xs border-t border-[#0D264C]">
+      {/* Trust & Guarantee Strip */}
+      <div className="border-b border-white/10 py-8 bg-[#0D264C]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 shrink-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 rounded-xl bg-white/10 text-amber-400 shrink-0">
                 <Zap className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm">
-                  Instant Delivery
-                </h4>
-                <p className="text-zinc-500 mt-0.5">
-                  Secure download links generated automatically upon payment.
+                <h4 className="font-bold text-white text-sm">Instant Delivery</h4>
+                <p className="text-slate-400 text-xs mt-0.5">
+                  Cryptographically signed download URLs generated immediately upon payment.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 shrink-0">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 rounded-xl bg-white/10 text-emerald-400 shrink-0">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm">
-                  Verified Clean Files
-                </h4>
-                <p className="text-zinc-500 mt-0.5">
-                  High-fidelity PDF and EPUB formats checked for digital integrity.
+                <h4 className="font-bold text-white text-sm">Verified Book Files</h4>
+                <p className="text-slate-400 text-xs mt-0.5">
+                  High-fidelity PDF formats scanned for pristine readability and text search.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400 shrink-0">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 rounded-xl bg-white/10 text-blue-300 shrink-0">
                 <Lock className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm">
-                  Encrypted Storage
-                </h4>
-                <p className="text-zinc-500 mt-0.5">
-                  Books stored in private vaults with short-lived signed URLs.
+                <h4 className="font-bold text-white text-sm">Private Storage Vault</h4>
+                <p className="text-slate-400 text-xs mt-0.5">
+                  Stored in private Supabase cloud vaults with tokenized access quotas.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 shrink-0">
-                <Mail className="w-5 h-5" />
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 rounded-xl bg-white/10 text-amber-400 shrink-0">
+                <CreditCard className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm">
-                  Author Support
-                </h4>
-                <p className="text-zinc-500 mt-0.5">
-                  Direct support and errata updates for every purchased title.
+                <h4 className="font-bold text-white text-sm">Razorpay Secured</h4>
+                <p className="text-slate-400 text-xs mt-0.5">
+                  Authorize with UPI, RuPay, Visa, Mastercard, and NetBanking.
                 </p>
               </div>
             </div>
@@ -79,125 +74,150 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-          {/* Brand Info */}
-          <div className="col-span-2">
-            <Link href="/" className="inline-block mb-3">
-              <div className="relative h-9 w-36">
+      {/* Main 4-Column Footer Navigation */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* Column 1: Brand & Publishing Mission */}
+          <div className="lg:col-span-4 space-y-4">
+            <Link href="/" className="inline-block">
+              <div className="relative h-10 w-44 flex items-center">
                 <Image
                   src={siteConfig.logo}
                   alt={siteConfig.name}
-                  width={150}
-                  height={38}
-                  className="object-contain h-full w-auto"
+                  width={176}
+                  height={44}
+                  className="object-contain brightness-0 invert"
                 />
               </div>
             </Link>
-            <p className="text-xs text-zinc-500 leading-relaxed max-w-sm mb-4">
-              {siteConfig.description}
+
+            <p className="text-slate-300 text-xs leading-relaxed max-w-sm">
+              ApexBooks is India&apos;s premier digital bookstore and knowledge publisher. Dedicated to empowering readers, engineering students, competitive examination aspirants, and entrepreneurs with authentic, DRM-free digital books.
             </p>
-            <p className="text-xs text-zinc-400">
-              Need assistance? Reach us at{" "}
-              <a
-                href={`mailto:${siteConfig.supportEmail}`}
-                className="text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                {siteConfig.supportEmail}
-              </a>
-            </p>
+
+            <div className="pt-2 text-xs space-y-1.5 text-slate-300">
+              <p className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>support@apexbooks.demo</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <Headphones className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Support Hours: Mon – Sat, 9:00 AM – 6:00 PM IST</span>
+              </p>
+            </div>
           </div>
 
-          {/* Categories Column 1 */}
-          <div>
-            <h4 className="font-bold text-zinc-900 dark:text-zinc-200 text-xs uppercase tracking-wider mb-3">
-              Popular Genres
-            </h4>
-            <ul className="space-y-2">
-              {siteConfig.categories.slice(0, 5).map((cat) => (
-                <li key={cat.id}>
-                  <Link
-                    href={`/books?category=${cat.slug}`}
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    {cat.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Categories Column 2 */}
-          <div>
-            <h4 className="font-bold text-zinc-900 dark:text-zinc-200 text-xs uppercase tracking-wider mb-3">
-              More Genres
-            </h4>
-            <ul className="space-y-2">
-              {siteConfig.categories.slice(5).map((cat) => (
-                <li key={cat.id}>
-                  <Link
-                    href={`/books?category=${cat.slug}`}
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    {cat.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Platform & Admin */}
-          <div>
-            <h4 className="font-bold text-zinc-900 dark:text-zinc-200 text-xs uppercase tracking-wider mb-3">
-              Platform
-            </h4>
+          {/* Column 2: Quick Shop Links */}
+          <div className="lg:col-span-2 space-y-3">
+            <h5 className="font-bold text-sm text-white uppercase tracking-wider text-[11px]">
+              Explore Bookstore
+            </h5>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/books"
-                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                >
+                <Link href="/books" className="hover:text-white transition-colors">
                   All eBooks
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/cart"
-                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                >
-                  Shopping Cart
+                <Link href="/books?sort=bestseller" className="hover:text-white transition-colors">
+                  Bestsellers
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/auth/signin"
-                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                >
-                  Customer Login
+                <Link href="/books?sort=newest" className="hover:text-white transition-colors">
+                  New Releases
                 </Link>
               </li>
-              <li className="pt-2">
-                <Link
-                  href="/admin"
-                  className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-blue-600 hover:text-white transition-colors"
-                >
-                  <span>Admin Portal</span>
+              <li>
+                <Link href="/categories" className="hover:text-white transition-colors">
+                  Browse by Category
+                </Link>
+              </li>
+              <li>
+                <Link href="/wishlist" className="hover:text-white transition-colors">
+                  My Wishlist
+                </Link>
+              </li>
+              <li>
+                <Link href="/cart" className="hover:text-white transition-colors">
+                  Shopping Cart
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Curated Disciplines */}
+          <div className="lg:col-span-3 space-y-3">
+            <h5 className="font-bold text-sm text-white uppercase tracking-wider text-[11px]">
+              Top Categories
+            </h5>
+            <ul className="space-y-2">
+              {siteConfig.categories.slice(0, 6).map((cat) => (
+                <li key={cat.id}>
+                  <Link
+                    href={`/books?category=${cat.slug}`}
+                    className="hover:text-white transition-colors flex items-center justify-between group"
+                  >
+                    <span>{cat.name}</span>
+                    <ArrowRight className="w-3 h-3 text-white/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4: Customer Care & Legal Policies */}
+          <div className="lg:col-span-3 space-y-3">
+            <h5 className="font-bold text-sm text-white uppercase tracking-wider text-[11px]">
+              Support & Policies
+            </h5>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/account" className="hover:text-white transition-colors">
+                  My Account & Bookshelf
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="hover:text-white transition-colors">
+                  About ApexBooks
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-white transition-colors">
+                  Customer Care & Inquiries
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-white transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="hover:text-white transition-colors">
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link href="/refund" className="hover:text-white transition-colors">
+                  Refund & Cancellation Policy
                 </Link>
               </li>
             </ul>
           </div>
         </div>
+      </div>
 
-        {/* Bottom bar */}
-        <div className="mt-12 pt-6 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
-          <p>
-            © 2026 {siteConfig.name}. All digital rights reserved.
-          </p>
-          <div className="flex items-center gap-4">
-            <span className="text-[11px] text-zinc-400">
-              Payment ready: Razorpay Test / Demo Mode
-            </span>
+      {/* Bottom Bar: Copyright & Compliance */}
+      <div className="border-t border-white/10 py-6 bg-[#0B203F]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400">
+          <p>© 2026 ApexBooks Digital Publishing. All rights reserved.</p>
+
+          <div className="flex items-center gap-4 text-slate-300">
+            <span>Powered by Razorpay Payments</span>
+            <span>•</span>
+            <span>256-Bit SSL Encrypted</span>
+            <span>•</span>
+            <span>Indian Digital Commerce</span>
           </div>
         </div>
       </div>

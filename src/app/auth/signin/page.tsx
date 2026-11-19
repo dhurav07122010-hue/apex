@@ -118,7 +118,7 @@ function SignInForm() {
   };
 
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 shadow-xl space-y-6">
+    <div className="bg-white border border-[#E2E8F0] rounded-3xl p-8 shadow-xl space-y-6">
       {/* Brand Header */}
       <div className="text-center space-y-2">
         <div className="relative h-12 w-44 mx-auto flex items-center justify-center mb-2">
@@ -131,18 +131,18 @@ function SignInForm() {
             className="object-contain"
           />
         </div>
-        <h1 className="text-xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">
+        <h1 className="text-2xl font-black text-[#153D78] tracking-tight">
           {mode === "signin" ? "Welcome Back" : "Create Customer Account"}
         </h1>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-slate-500">
           {mode === "signin"
-            ? "Sign in to access your purchased eBooks and digital bookshelf."
+            ? "Sign in to access your purchased books and digital bookshelf."
             : "Register to purchase and securely download digital titles."}
         </p>
       </div>
 
       {/* Mode Selector Tabs */}
-      <div className="grid grid-cols-2 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-xs font-semibold">
+      <div className="grid grid-cols-2 p-1 rounded-xl bg-[#F4F6FA] text-xs font-semibold">
         <button
           type="button"
           onClick={() => {
@@ -150,10 +150,10 @@ function SignInForm() {
             setErrorMessage("");
             setSuccessMessage("");
           }}
-          className={`py-2 rounded-lg transition-all ${
+          className={`py-2 rounded-lg transition-all cursor-pointer ${
             mode === "signin"
-              ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm"
-              : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+              ? "bg-[#153D78] text-white shadow-sm font-bold"
+              : "text-slate-600 hover:text-[#153D78]"
           }`}
         >
           Sign In
@@ -165,10 +165,10 @@ function SignInForm() {
             setErrorMessage("");
             setSuccessMessage("");
           }}
-          className={`py-2 rounded-lg transition-all ${
+          className={`py-2 rounded-lg transition-all cursor-pointer ${
             mode === "signup"
-              ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-sm"
-              : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+              ? "bg-[#153D78] text-white shadow-sm font-bold"
+              : "text-slate-600 hover:text-[#153D78]"
           }`}
         >
           Create Account
@@ -180,7 +180,7 @@ function SignInForm() {
         type="button"
         onClick={handleGoogleLogin}
         disabled={loading}
-        className="w-full py-3 px-4 rounded-xl border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-semibold text-zinc-800 dark:text-zinc-200 flex items-center justify-center gap-3 transition-colors cursor-pointer shadow-sm disabled:opacity-50"
+        className="w-full py-3 px-4 rounded-xl border border-[#E2E8F0] hover:bg-[#F4F6FA] text-xs font-bold text-slate-800 flex items-center justify-center gap-3 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24">
           <path
@@ -204,22 +204,22 @@ function SignInForm() {
       </button>
 
       <div className="relative flex items-center justify-center">
-        <div className="border-t border-zinc-200 dark:border-zinc-800 w-full" />
-        <span className="bg-white dark:bg-zinc-900 px-3 text-[11px] text-zinc-400 uppercase tracking-widest absolute">
+        <div className="border-t border-[#E2E8F0] w-full" />
+        <span className="bg-white px-3 text-[11px] text-slate-400 uppercase tracking-widest absolute">
           Or with email
         </span>
       </div>
 
       {/* Feedback Alerts */}
       {errorMessage && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-300 flex items-start gap-2">
+        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-start gap-2">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {successMessage && (
-        <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900 text-xs text-emerald-700 dark:text-emerald-300 flex items-start gap-2">
+        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 flex items-start gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{successMessage}</span>
         </div>
@@ -229,53 +229,53 @@ function SignInForm() {
       <form onSubmit={handleEmailAuth} className="space-y-4">
         {mode === "signup" && (
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+            <label className="block text-xs font-bold text-slate-700 mb-1">
               Full Name
             </label>
             <div className="relative">
-              <User className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Devendra Verma"
-                className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-blue-500 outline-none"
+                className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-[#F4F6FA] border border-[#E2E8F0] focus:border-[#2878D0] outline-none text-[#0F1D36]"
               />
             </div>
           </div>
         )}
 
         <div>
-          <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+          <label className="block text-xs font-bold text-slate-700 mb-1">
             Email Address
           </label>
           <div className="relative">
-            <Mail className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-blue-500 outline-none"
+              className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-[#F4F6FA] border border-[#E2E8F0] focus:border-[#2878D0] outline-none text-[#0F1D36]"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+          <label className="block text-xs font-bold text-slate-700 mb-1">
             Password
           </label>
           <div className="relative">
-            <Lock className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-blue-500 outline-none"
+              className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-[#F4F6FA] border border-[#E2E8F0] focus:border-[#2878D0] outline-none text-[#0F1D36]"
             />
           </div>
         </div>
@@ -283,7 +283,7 @@ function SignInForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
+          className="w-full py-3.5 px-4 rounded-xl bg-[#153D78] hover:bg-[#2878D0] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
         >
           <span>
             {loading
@@ -297,14 +297,14 @@ function SignInForm() {
       </form>
 
       {/* Security Rule Ribbon */}
-      <div className="pt-2 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 text-[11px] text-zinc-500 space-y-1">
-        <div className="flex items-center gap-1.5 font-bold text-zinc-700 dark:text-zinc-300">
-          <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+      <div className="pt-2 p-3 rounded-2xl bg-[#EAF3FF] border border-[#2878D0]/30 text-[11px] text-slate-600 space-y-1">
+        <div className="flex items-center gap-1.5 font-bold text-[#153D78]">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#153D78]" />
           <span>Administrator Security Rule:</span>
         </div>
         <p>
           Admin access is strictly gated by Google OAuth for verified email{" "}
-          <code className="text-blue-600 font-mono font-semibold">
+          <code className="text-[#153D78] font-mono font-bold">
             dhurav07122010@gmail.com
           </code>
           . Passwords cannot unlock admin access.
@@ -316,17 +316,19 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <div className="max-w-md mx-auto px-4 py-16">
-      <Suspense
-        fallback={
-          <div className="p-8 text-center text-zinc-500">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2" />
-            <p className="text-xs">Loading sign-in form...</p>
-          </div>
-        }
-      >
-        <SignInForm />
-      </Suspense>
+    <div className="bg-[#F4F6FA] min-h-screen py-16 flex items-center justify-center">
+      <div className="w-full max-w-md px-4">
+        <Suspense
+          fallback={
+            <div className="p-8 text-center text-slate-500">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-3 border-[#153D78] border-t-transparent mb-2" />
+              <p className="text-xs font-semibold text-[#153D78]">Loading sign-in form...</p>
+            </div>
+          }
+        >
+          <SignInForm />
+        </Suspense>
+      </div>
     </div>
   );
 }
