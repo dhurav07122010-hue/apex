@@ -1,4 +1,15 @@
+export const AUTHORIZED_ADMIN_EMAILS = [
+  "dhurav07122010@gmail.com",
+  "dhuruv07122010@gmail.com",
+];
+
 export const AUTHORIZED_ADMIN_EMAIL = "dhurav07122010@gmail.com";
+
+export function isAuthorizedAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  const normalized = email.toLowerCase().trim();
+  return AUTHORIZED_ADMIN_EMAILS.some((adm) => adm.toLowerCase().trim() === normalized);
+}
 
 export interface CategoryConfig {
   id: string;

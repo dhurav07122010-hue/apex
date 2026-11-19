@@ -2,8 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { User } from "@supabase/supabase-js";
 
-import { AUTHORIZED_ADMIN_EMAIL } from "@/config/site";
-export { AUTHORIZED_ADMIN_EMAIL };
+import { AUTHORIZED_ADMIN_EMAIL, AUTHORIZED_ADMIN_EMAILS, isAuthorizedAdminEmail } from "@/config/site";
+export { AUTHORIZED_ADMIN_EMAIL, AUTHORIZED_ADMIN_EMAILS, isAuthorizedAdminEmail };
 
 export interface AdminValidationResult {
   authorized: boolean;
@@ -33,8 +33,8 @@ export async function validateAdminUser(
 
   const email = user.email?.toLowerCase().trim();
 
-  // 1. Exact email allowlist check
-  if (email !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+  // 1. Exact email allowlist check (supports authorized admin email accounts)
+  if (!isAuthorizedAdminEmail(email)) {
     return {
       authorized: false,
       error: `Forbidden: Email '${email}' is not authorized for administrator access.`,
@@ -60,15 +60,15 @@ export async function validateAdminUser(
   const { data: allowlistEntry, error: dbError } = await adminDb
     .from("admin_allowlist")
     .select("email, is_active")
-    .eq("email", AUTHORIZED_ADMIN_EMAIL)
+    .eq("email", email!)
     .eq("is_active", true)
-    .single();
+    .maybeSingle();
 
   if (dbError || !allowlistEntry) {
     return {
       authorized: false,
       error:
-        "Forbidden: Admin email is not registered or is deactivated in server allowlist database.",
+        `Forbidden: Admin email '${email}' is not registered or is deactivated in server allowlist database.`,
     };
   }
 

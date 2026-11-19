@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { AUTHORIZED_ADMIN_EMAIL } from "@/config/site";
+import { isAuthorizedAdminEmail } from "@/config/site";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -34,8 +34,7 @@ export async function GET(request: Request) {
 
     if (!error && data?.user) {
       const user = data.user;
-      const isAdmin =
-        user.email?.toLowerCase().trim() === AUTHORIZED_ADMIN_EMAIL.toLowerCase().trim();
+      const isAdmin = isAuthorizedAdminEmail(user.email);
 
       const targetUrl = isAdmin ? `${origin}/admin` : `${origin}${next}`;
       const redirectResponse = NextResponse.redirect(targetUrl);

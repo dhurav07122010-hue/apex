@@ -4,7 +4,7 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { siteConfig } from "@/config/site";
+import { siteConfig, isAuthorizedAdminEmail } from "@/config/site";
 import { createClient } from "@/lib/supabase/client";
 import {
   Mail,
@@ -76,7 +76,7 @@ function SignInForm() {
           return;
         }
 
-        if (data.user?.email?.toLowerCase() === "dhurav07122010@gmail.com") {
+        if (isAuthorizedAdminEmail(data.user?.email)) {
           setSuccessMessage(
             "Signed in as customer. Note: Admin panel access requires Google OAuth login."
           );
@@ -306,6 +306,10 @@ function SignInForm() {
           Admin access is strictly gated by Google OAuth for verified email{" "}
           <code className="text-[#153D78] font-mono font-bold">
             dhurav07122010@gmail.com
+          </code>{" "}
+          /{" "}
+          <code className="text-[#153D78] font-mono font-bold">
+            dhuruv07122010@gmail.com
           </code>
           . Passwords cannot unlock admin access.
         </p>

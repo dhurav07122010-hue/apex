@@ -121,9 +121,9 @@ async function runTests() {
         adminDb.from("admin_allowlist").select("*", { count: "exact", head: true }),
       ]);
 
-    if (productsCount >= 6 && categoriesCount === 10 && allowlistCount === 1) {
+    if (productsCount >= 6 && categoriesCount === 10 && allowlistCount >= 1) {
       console.log(
-        `PASS [Test 5]: Admin telemetry operational: ${productsCount} books, ${categoriesCount} categories, ${allowlistCount} allowlisted admin`
+        `PASS [Test 5]: Admin telemetry operational: ${productsCount} books, ${categoriesCount} categories, ${allowlistCount} allowlisted admins`
       );
       passed++;
     } else {

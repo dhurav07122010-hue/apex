@@ -7,7 +7,7 @@ import { BookCover } from "@/components/BookCover";
 import { BookPreviewModal } from "@/components/BookPreviewModal";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
-import { siteConfig, AUTHORIZED_ADMIN_EMAIL } from "@/config/site";
+import { siteConfig, isAuthorizedAdminEmail } from "@/config/site";
 import {
   User,
   BookOpen,
@@ -41,8 +41,7 @@ export function AccountDashboardClient({ initialUser, initialBooks = [] }: Accou
   const { wishlist, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
 
-  const isAdmin =
-    initialUser?.email?.toLowerCase().trim() === AUTHORIZED_ADMIN_EMAIL.toLowerCase().trim();
+  const isAdmin = isAuthorizedAdminEmail(initialUser?.email);
 
   // Purchased books in library (using passed books or default demo purchases)
   const purchasedBooks = initialBooks.length > 0 ? initialBooks : [];

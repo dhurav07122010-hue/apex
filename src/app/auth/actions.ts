@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { isAuthorizedAdminEmail } from "@/config/site";
 
 export async function signInWithEmail(formData: FormData) {
   const email = formData.get("email") as string;
@@ -23,7 +24,7 @@ export async function signInWithEmail(formData: FormData) {
   }
 
   // Check if admin
-  if (data.user?.email?.toLowerCase() === "dhurav07122010@gmail.com") {
+  if (isAuthorizedAdminEmail(data.user?.email)) {
     // Alert that password logins cannot access admin
     return {
       success: true,

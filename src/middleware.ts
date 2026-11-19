@@ -65,8 +65,12 @@ export async function middleware(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const authorizedAdminEmail = "dhurav07122010@gmail.com";
-    if (!user || user.email?.toLowerCase().trim() !== authorizedAdminEmail) {
+    const authorizedAdminEmails = [
+      "dhurav07122010@gmail.com",
+      "dhuruv07122010@gmail.com",
+    ];
+    const userEmail = user?.email?.toLowerCase().trim();
+    if (!user || !userEmail || !authorizedAdminEmails.includes(userEmail)) {
       const signInUrl = new URL("/auth/signin", request.url);
       signInUrl.searchParams.set("redirect", "/admin");
       signInUrl.searchParams.set(

@@ -51,7 +51,7 @@ async function simulateAdminValidation(mockUser) {
   const { data: allowlistEntry } = await adminDb
     .from("admin_allowlist")
     .select("email, is_active")
-    .eq("email", AUTHORIZED_ADMIN_EMAIL)
+    .eq("email", email)
     .eq("is_active", true)
     .single();
 
