@@ -23,6 +23,8 @@ import {
 import { siteConfig } from "@/config/site";
 import { signOut } from "@/app/auth/actions";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Admin Portal — ApexBooks",
   description: "Secure Administrative Management System",
