@@ -7,6 +7,7 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
+import { getSiteBranding } from "@/lib/siteSettings";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,24 +33,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const branding = await getSiteBranding();
+
   return (
     <html
       lang="en"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="icon" href={branding.faviconUrl} />
+        <link rel="apple-touch-icon" href={branding.faviconUrl} />
+      </head>
       <body
         suppressHydrationWarning
         className="min-h-full flex flex-col bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans"
       >
         <CartProvider>
           <WishlistProvider>
-            <Navbar />
+            <Navbar logoUrl={branding.logoUrl} />
             <main className="flex-1">{children}</main>
             <Footer />
             <CartDrawer />

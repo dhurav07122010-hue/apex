@@ -23,7 +23,11 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-export function Navbar() {
+interface NavbarProps {
+  logoUrl?: string;
+}
+
+export function Navbar({ logoUrl }: NavbarProps = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const { totalItems, setIsCartOpen } = useCart();
@@ -135,7 +139,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 sm:gap-8">
           {/* Logo */}
           <div className="shrink-0">
-            <ApexBooksLogo size="md" />
+            <ApexBooksLogo size="md" logoUrl={logoUrl} />
           </div>
 
           {/* Central Search Bar */}
@@ -447,7 +451,7 @@ export function Navbar() {
           <div className="relative w-80 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col justify-between z-10 animate-in slide-in-from-left duration-200">
             {/* Header */}
             <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-[#0F2754] text-white">
-              <ApexBooksLogo size="sm" inverted />
+              <ApexBooksLogo size="sm" inverted logoUrl={logoUrl} />
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}

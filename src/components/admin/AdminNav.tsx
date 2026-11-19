@@ -28,23 +28,23 @@ import { AdminSignOutButton } from "@/components/AdminSignOutButton";
 export const adminNavItems = [
   { name: "Overview", href: "/admin", icon: LayoutDashboard },
   { name: "Products", href: "/admin/products", icon: BookOpen },
-  { name: "Add eBook", href: "/admin/products/new", icon: PlusCircle },
   { name: "Categories", href: "/admin/categories", icon: Layers },
   { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Payments", href: "/admin/payments", icon: CreditCard },
-  { name: "Downloads", href: "/admin/downloads", icon: Download },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { name: "Store Settings", href: "/admin/settings", icon: Settings },
 ];
 
 interface AdminNavProps {
   initialRemainingMs?: number;
+  logoUrl?: string;
 }
 
-export function AdminNav({ initialRemainingMs }: AdminNavProps) {
+export function AdminNav({ initialRemainingMs, logoUrl }: AdminNavProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const activeLogo = logoUrl || siteConfig.logo;
 
   // 240-second Ephemeral Session Countdown Timer
   const [secondsLeft, setSecondsLeft] = useState<number>(() => {
@@ -70,13 +70,8 @@ export function AdminNav({ initialRemainingMs }: AdminNavProps) {
     const interval = setInterval(() => {
       setSecondsLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(interval);
-          // Invalidate and prompt re-authentication when 240 seconds elapse
-          window.location.href =
-            "/auth/signin?redirect=/admin&error=" +
-            encodeURIComponent(
-              "Your admin session has expired (4-minute security window). Please sign in again."
-            );
+          // Do not forcefully kick the user out while editing.
+          // Access is securely invalidated when refreshing after 4 minutes (240s).
           return 0;
         }
         return prev - 1;
@@ -124,17 +119,14 @@ export function AdminNav({ initialRemainingMs }: AdminNavProps) {
         <div className="px-4 py-3 flex items-center justify-between">
           {/* Logo & Admin Badge */}
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="relative h-7 w-28">
-              <Image
-                src={siteConfig.logo}
+            <div className="flex items-center h-7">
+              <img
+                src={activeLogo}
                 alt={siteConfig.name}
-                width={112}
-                height={28}
-                priority
-                className="object-contain"
+                className="h-7 w-auto max-w-[115px] object-contain block"
               />
             </div>
-            <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-amber-400 text-slate-950 tracking-wider">
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-amber-400 text-slate-950 tracking-wider shrink-0 shadow-xs">
               ADMIN
             </span>
           </Link>
@@ -209,16 +201,14 @@ export function AdminNav({ initialRemainingMs }: AdminNavProps) {
             {/* Drawer Header */}
             <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="relative h-7 w-28">
-                  <Image
-                    src={siteConfig.logo}
+                <div className="flex items-center h-7">
+                  <img
+                    src={activeLogo}
                     alt={siteConfig.name}
-                    width={112}
-                    height={28}
-                    className="object-contain"
+                    className="h-7 w-auto max-w-[115px] object-contain block"
                   />
                 </div>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-amber-400 text-slate-950">
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-amber-400 text-slate-950 tracking-wider shrink-0">
                   ADMIN
                 </span>
               </div>
@@ -299,40 +289,40 @@ export function AdminNav({ initialRemainingMs }: AdminNavProps) {
         <div>
           {/* Brand header */}
           <div className="p-5 border-b border-zinc-200 dark:border-zinc-800">
-            <div className="flex items-center gap-2">
-              <div className="relative h-8 w-32">
-                <Image
-                  src={siteConfig.logo}
+            <div className="flex items-center justify-between gap-2 pb-2">
+              <div className="flex items-center h-8">
+                <img
+                  src={activeLogo}
                   alt={siteConfig.name}
-                  width={130}
-                  height={32}
-                  priority
-                  className="object-contain"
+                  className="h-8 w-auto max-w-[130px] object-contain block"
                 />
               </div>
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-amber-400 text-slate-950 tracking-wider">
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-amber-400 text-slate-950 tracking-wider shrink-0 shadow-xs">
                 ADMIN
               </span>
             </div>
-            <div className="mt-3 flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-              <ShieldCheck className="w-3.5 h-3.5" />
+
+            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
               <span>Google OAuth Verified</span>
             </div>
 
             {/* 240-Second Ephemeral Session Countdown */}
             <div
-              className={`mt-2 flex items-center justify-between px-2.5 py-1.5 rounded-xl border text-[11px] ${
-                secondsLeft <= 60
+              className={`mt-2.5 flex items-center justify-between px-2.5 py-1.5 rounded-xl border text-[11px] ${
+                secondsLeft <= 0
+                  ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 font-bold"
+                  : secondsLeft <= 60
                   ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 animate-pulse"
                   : "bg-blue-50/70 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300"
               }`}
             >
               <div className="flex items-center gap-1.5 font-semibold">
-                <Clock className="w-3.5 h-3.5" />
+                <Clock className="w-3.5 h-3.5 shrink-0" />
                 <span>Session:</span>
               </div>
               <span className="font-mono font-bold tracking-wider">
-                {formatTime(secondsLeft)}
+                {secondsLeft <= 0 ? "00:00 (Expires on refresh)" : formatTime(secondsLeft)}
               </span>
             </div>
           </div>

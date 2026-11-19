@@ -7,9 +7,31 @@ interface ApexBooksLogoProps {
   className?: string;
   size?: "sm" | "md" | "lg";
   inverted?: boolean;
+  logoUrl?: string;
 }
 
-export function ApexBooksLogo({ className = "", size = "md", inverted = false }: ApexBooksLogoProps) {
+export function ApexBooksLogo({
+  className = "",
+  size = "md",
+  inverted = false,
+  logoUrl,
+}: ApexBooksLogoProps) {
+  if (logoUrl && logoUrl !== "/logo.png") {
+    const imgHeight = {
+      sm: "h-7",
+      md: "h-9",
+      lg: "h-11",
+    }[size];
+    return (
+      <Link href="/" className={`inline-flex items-center group select-none ${className}`}>
+        <img
+          src={logoUrl}
+          alt="ApexBooks"
+          className={`${imgHeight} w-auto object-contain block`}
+        />
+      </Link>
+    );
+  }
   const iconSizes = {
     sm: "w-7 h-7",
     md: "w-9 h-9",

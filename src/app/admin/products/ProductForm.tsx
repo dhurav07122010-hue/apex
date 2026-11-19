@@ -119,7 +119,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
           </Link>
           <div>
             <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-zinc-50">
-              {initialData ? "Edit eBook Product" : "Add New eBook"}
+              {initialData ? "Edit Product" : "Add New Product"}
             </h1>
             <p className="text-xs text-zinc-500">
               {initialData ? `Updating ${initialData.title}` : "Upload digital file to private storage vault and publish."}
@@ -133,7 +133,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
           className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
         >
           <Save className="w-4 h-4" />
-          <span>{loading ? "Saving..." : "Save eBook"}</span>
+          <span>{loading ? "Saving..." : "Save Product"}</span>
         </button>
       </div>
 
@@ -337,7 +337,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
 
         {/* Right Column: Pricing, Specifications, & Publishing Controls */}
         <div className="space-y-6">
-          {/* Pricing Card */}
+          {/* Header */}
           <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
             <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 border-b border-zinc-100 dark:border-zinc-800 pb-2">
               Pricing & Discounts
@@ -369,91 +369,6 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
                 onChange={(e) => setOriginalPrice(e.target.value)}
                 placeholder="1299"
                 className="w-full px-3.5 py-2 text-xs rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-blue-500 outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Technical Specs Card */}
-          <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-3 shadow-sm">
-            <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 border-b border-zinc-100 dark:border-zinc-800 pb-2">
-              Specifications
-            </h3>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-                  Format
-                </label>
-                <select
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value)}
-                  className="w-full p-2 text-xs rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800"
-                >
-                  <option value="PDF">PDF</option>
-                  <option value="EPUB">EPUB</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-                  Page Count
-                </label>
-                <input
-                  type="number"
-                  value={pageCount}
-                  onChange={(e) => setPageCount(e.target.value)}
-                  className="w-full p-2 text-xs rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-                  File Size
-                </label>
-                <input
-                  type="text"
-                  value={fileSize}
-                  onChange={(e) => setFileSize(e.target.value)}
-                  className="w-full p-2 text-xs rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-                  Language
-                </label>
-                <input
-                  type="text"
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="w-full p-2 text-xs rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-                ISBN
-              </label>
-              <input
-                type="text"
-                value={isbn}
-                onChange={(e) => setIsbn(e.target.value)}
-                placeholder="978-0-13-597444-5"
-                className="w-full p-2 text-xs rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-                Badge / Tag (e.g. Bestseller)
-              </label>
-              <input
-                type="text"
-                value={badge}
-                onChange={(e) => setBadge(e.target.value)}
-                placeholder="Bestseller, Hot, Editor's Pick"
-                className="w-full p-2 text-xs rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800"
               />
             </div>
           </div>

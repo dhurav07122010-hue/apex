@@ -39,15 +39,7 @@ export async function validateAdminUser(
 
   const email = user.email?.toLowerCase().trim();
 
-  // 1. Exact email allowlist check
-  if (!isAuthorizedAdminEmail(email)) {
-    return {
-      authorized: false,
-      error: "Forbidden: This account is not authorized for administrator access.",
-    };
-  }
-
-  // 2. Enforce Google OAuth only — permanently reject email/password login
+  // 1. Enforce Google OAuth only — permanently reject email/password login
   const provider = user.app_metadata?.provider;
   const hasGoogleIdentity =
     provider === "google" ||
@@ -61,20 +53,32 @@ export async function validateAdminUser(
     };
   }
 
-  // 3. Server database allowlist verification
+  // 2. Database allowlist check & fallback to authorized admin list
   const adminDb = createAdminClient();
   const { data: allowlistEntry, error: dbError } = await adminDb
     .from("admin_allowlist")
     .select("email, is_active")
     .eq("email", email!)
-    .eq("is_active", true)
     .maybeSingle();
 
-  if (dbError || !allowlistEntry) {
+  const isExplicitAllowlist = allowlistEntry && allowlistEntry.is_active;
+  const isStaticFallback = isAuthorizedAdminEmail(email);
+
+  if (!isExplicitAllowlist && !isStaticFallback) {
     return {
       authorized: false,
-      error: "Forbidden: Administrator privileges are inactive or not registered in the database allowlist.",
+      error: "Forbidden: This Google account is not registered as an authorized administrator.",
     };
+  }
+
+  // If user was in static fallback but not yet registered in DB, ensure record exists
+  if (!allowlistEntry && isStaticFallback) {
+    await adminDb.from("admin_allowlist").upsert({
+      email: email!,
+      description: "Store Administrator",
+      is_active: true,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "email" });
   }
 
   // All server checks passed

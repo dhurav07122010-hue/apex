@@ -63,10 +63,10 @@ export function ProductListClient({ initialProducts }: ProductListClientProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-zinc-900 dark:text-zinc-50">
-            eBooks & Products
+            Products
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Manage catalogue titles, PDF storage vaults, and publishing states.
+            Manage catalogue titles, digital storage vaults, and publishing states.
           </p>
         </div>
 
@@ -75,7 +75,7 @@ export function ProductListClient({ initialProducts }: ProductListClientProps) {
           className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
         >
           <Plus className="w-4 h-4" />
-          <span>Add New eBook</span>
+          <span>Add Product</span>
         </Link>
       </div>
 

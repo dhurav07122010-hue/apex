@@ -2,6 +2,7 @@ import React from "react";
 import { redirect } from "next/navigation";
 import { validateAdminSession } from "@/lib/auth/admin";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { getSiteBranding } from "@/lib/siteSettings";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,10 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const authResult = await validateAdminSession();
+  const [authResult, branding] = await Promise.all([
+    validateAdminSession(),
+    getSiteBranding(),
+  ]);
 
   // If not authorized as admin, redirect to sign-in immediately
   if (!authResult.authorized) {
@@ -30,7 +34,7 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-zinc-50/80 dark:bg-zinc-950 flex flex-col md:flex-row">
       {/* Responsive Navigation: Mobile Top Bar + Drawer & Desktop Sticky Sidebar */}
-      <AdminNav initialRemainingMs={authResult.remainingMs} />
+      <AdminNav initialRemainingMs={authResult.remainingMs} logoUrl={branding.logoUrl} />
 
       {/* Main Admin Content Body */}
       <main className="flex-1 p-4 sm:p-6 md:p-8 min-w-0 max-w-full overflow-x-hidden">
