@@ -2,6 +2,24 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+  // Check if any supabase auth cookie exists
+  const allCookies = request.cookies.getAll();
+  const hasAuthCookie = allCookies.some((c) =>
+    c.name.startsWith("sb-") && (c.name.includes("-auth-token") || c.name.includes("token"))
+  );
+
+  const pathname = request.nextUrl.pathname;
+  const isProtectedPath =
+    pathname.startsWith("/account") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/checkout");
+
+  // Fast-path: If visitor has no auth session and is on public routes,
+  // bypass Supabase network roundtrip completely for instant TTFB.
+  if (!hasAuthCookie && !isProtectedPath) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -34,9 +52,10 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired - required for Server Components
-  // https://supabase.com/docs/guides/auth/server-side/nextjs
-  await supabase.auth.getUser();
+  // Refresh session if authenticated or accessing protected path
+  if (hasAuthCookie || isProtectedPath) {
+    await supabase.auth.getUser();
+  }
 
   return supabaseResponse;
 }

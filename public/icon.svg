@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" fill="none">
+  <!-- Left page layer -->
+  <path d="M22 12C14 9 7 11 5 13V33C7 31 14 29 22 32V12Z" fill="#1E40AF" />
+  <!-- Left page face -->
+  <path d="M22 10C14 7 7 9 5 11V31C7 29 14 27 22 30V10Z" fill="#2563EB" />
+  <!-- Right page layer -->
+  <path d="M22 12C30 9 37 11 39 13V33C37 31 30 29 22 32V12Z" fill="#1D4ED8" />
+  <!-- Right page face -->
+  <path d="M22 10C30 7 37 9 39 11V31C37 29 30 27 22 30V10Z" fill="#3B82F6" />
+  <!-- Spine & Center fold -->
+  <path d="M22 10V32" stroke="#1E3A8A" stroke-width="2.5" stroke-linecap="round" />
+  <!-- Gold Bookmark ribbon -->
+  <path d="M22 10V22L24.5 19.5L27 22V10" fill="#FBBF24" opacity="0.9" />
+</svg>

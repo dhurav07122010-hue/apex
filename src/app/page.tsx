@@ -421,6 +421,8 @@ export default function HomePage() {
                     <img
                       src={testimonials[testimonialSlide].avatar}
                       alt={testimonials[testimonialSlide].author}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                   </div>
