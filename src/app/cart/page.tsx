@@ -6,22 +6,21 @@ import { useCart } from "@/context/CartContext";
 import { siteConfig } from "@/config/site";
 import { BookCover } from "@/components/BookCover";
 import {
-  Trash2,
+  X,
   ArrowRight,
   ShoppingBag,
   ShieldCheck,
   Zap,
-  Lock,
-  Tag,
-  CheckCircle2,
-  AlertCircle,
-  ChevronRight,
+  Check,
+  Plus,
+  Minus,
 } from "lucide-react";
 
 export default function CartPage() {
-  const { cart, removeFromCart, clearCart, subtotal, totalItems } = useCart();
+  const { cart, removeFromCart, updateQuantity, subtotal, totalItems } = useCart();
   const [couponCode, setCouponCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
+  const [appliedCouponName, setAppliedCouponName] = useState("");
   const [couponError, setCouponError] = useState("");
   const [couponSuccess, setCouponSuccess] = useState("");
 
@@ -30,14 +29,21 @@ export default function CartPage() {
     setCouponError("");
     setCouponSuccess("");
 
-    if (!couponCode.trim()) return;
+    const code = couponCode.trim().toUpperCase();
+    if (!code) return;
 
-    if (couponCode.toUpperCase() === "APEX20" || couponCode.toUpperCase() === "LEARN20") {
+    if (code === "FIRST50") {
+      const discount = Math.round(subtotal * 0.5);
+      setAppliedDiscount(discount);
+      setAppliedCouponName("FIRST50 (50% OFF)");
+      setCouponSuccess("Success! 50% discount has been applied to your cart.");
+    } else if (code === "APEX20" || code === "LEARN20") {
       const discount = Math.round(subtotal * 0.2);
       setAppliedDiscount(discount);
-      setCouponSuccess(`Coupon "${couponCode.toUpperCase()}" applied! 20% discount.`);
+      setAppliedCouponName("APEX20 (20% OFF)");
+      setCouponSuccess("Success! 20% discount has been applied to your cart.");
     } else {
-      setCouponError("Invalid coupon code. Try 'APEX20'.");
+      setCouponError("Invalid coupon code. Try 'FIRST50' or 'APEX20'.");
     }
   };
 
@@ -45,22 +51,22 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="bg-[#F4F6FA] min-h-[70vh] py-16 flex items-center justify-center">
+      <div className="bg-white min-h-[70vh] py-16 flex items-center justify-center">
         <div className="max-w-md mx-auto px-4 text-center">
-          <div className="w-20 h-20 rounded-3xl bg-[#EAF3FF] flex items-center justify-center text-[#153D78] mx-auto mb-6 shadow-sm">
+          <div className="w-20 h-20 rounded-3xl bg-slate-100 flex items-center justify-center text-[#0F2754] mx-auto mb-6 shadow-sm">
             <ShoppingBag className="w-10 h-10" />
           </div>
-          <h1 className="text-3xl font-black text-[#153D78] mb-2">
-            Your Shopping Cart is Empty
+          <h1 className="text-3xl font-black text-[#0F1D36] mb-2">
+            Your Cart is Empty
           </h1>
-          <p className="text-sm text-slate-600 max-w-sm mx-auto mb-8 leading-relaxed">
-            You haven't selected any books yet. Explore our curated collections across programming, business, exams, and more.
+          <p className="text-xs text-slate-500 max-w-sm mx-auto mb-8 leading-relaxed">
+            You haven&apos;t added any eBooks to your shopping cart yet. Browse our curated collection to start learning.
           </p>
           <Link
             href="/books"
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#153D78] hover:bg-[#2878D0] text-white font-bold text-sm shadow-md transition-all"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#0F2754] hover:bg-[#153D78] text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all"
           >
-            <span>Explore Bookstore</span>
+            <span>Explore eBooks</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -69,196 +75,180 @@ export default function CartPage() {
   }
 
   return (
-    <div className="bg-[#F4F6FA] min-h-screen py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-white min-h-screen py-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-6 font-medium">
-          <Link href="/" className="hover:text-[#153D78] transition-colors">
+        <nav className="text-xs text-slate-500 flex items-center gap-2">
+          <Link href="/" className="hover:text-[#0F2754]">
             Home
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link href="/books" className="hover:text-[#153D78] transition-colors">
-            Books
-          </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-[#153D78] font-bold">Shopping Cart</span>
+          <span>&gt;</span>
+          <span className="font-bold text-[#0F1D36]">Shopping Cart</span>
         </nav>
 
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-[#153D78] tracking-tight">
-              Shopping Cart
-            </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              Review your selections ({totalItems} {totalItems === 1 ? "item" : "items"})
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={clearCart}
-            className="text-xs text-rose-600 hover:text-rose-700 font-bold flex items-center gap-1 cursor-pointer"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Clear Cart</span>
-          </button>
+        {/* Heading matching reference image: "Your Cart (X Items)" */}
+        <div className="border-b border-slate-200 pb-4">
+          <h1 className="text-2xl sm:text-3xl font-black text-[#0F1D36] tracking-tight">
+            Your Cart ({totalItems} {totalItems === 1 ? "Item" : "Items"})
+          </h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Cart Items List */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] divide-y divide-[#E2E8F0] overflow-hidden shadow-sm">
-              {cart.map((item) => (
-                <div key={item.book.id} className="p-5 flex flex-col sm:flex-row gap-5 items-start">
-                  <Link href={`/books/${item.book.slug}`} className="shrink-0 mx-auto sm:mx-0">
-                    <BookCover book={item.book} size="sm" showBadge={false} />
+        {/* Cart Items List */}
+        <div className="divide-y divide-slate-200 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+          {cart.map((item) => (
+            <div
+              key={item.book.id}
+              className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-4">
+                <Link href={`/books/${item.book.slug}`} className="shrink-0">
+                  <BookCover book={item.book} size="sm" showBadge={false} />
+                </Link>
+
+                <div className="space-y-1">
+                  <Link href={`/books/${item.book.slug}`}>
+                    <h3 className="font-bold text-sm sm:text-base text-[#0F1D36] hover:text-[#153D78] transition-colors">
+                      {item.book.title}
+                    </h3>
                   </Link>
-
-                  <div className="flex-1 min-w-0 w-full">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <span className="text-[10px] font-bold text-[#2878D0] uppercase tracking-wider">
-                          {item.book.categoryName}
-                        </span>
-                        <Link href={`/books/${item.book.slug}`}>
-                          <h3 className="font-bold text-base text-[#0F1D36] hover:text-[#2878D0] transition-colors">
-                            {item.book.title}
-                          </h3>
-                        </Link>
-                        <p className="text-xs text-slate-500 mt-0.5">By {item.book.author}</p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => removeFromCart(item.book.id)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                        title="Remove book"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-[#F4F6FA] flex items-center justify-between">
-                      <span className="text-xs text-slate-400 font-mono">
-                        {item.book.format} • {item.book.fileSize} • Instant Delivery
-                      </span>
-                      <span className="text-lg font-black text-[#153D78]">
-                        {siteConfig.currency.symbol}
-                        {item.book.price}
-                      </span>
-                    </div>
-                  </div>
+                  <p className="text-xs text-slate-500">{item.book.author}</p>
+                  <p className="text-xs font-bold text-[#0F1D36] pt-1">
+                    {siteConfig.currency.symbol}
+                    {item.book.price}
+                  </p>
                 </div>
-              ))}
+              </div>
+
+              {/* Quantity Controls & Line Item Total & Remove */}
+              <div className="flex items-center justify-between w-full sm:w-auto gap-6 pt-2 sm:pt-0">
+                {/* Quantity Controls [-] 1 [+] */}
+                <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item.book.id, Math.max(1, item.quantity - 1))}
+                    disabled={item.quantity <= 1}
+                    className="p-1.5 hover:bg-slate-200 text-slate-600 disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                    aria-label="Decrease quantity"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="px-3 text-xs font-bold text-[#0F1D36]">
+                    {item.quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item.book.id, item.quantity + 1)}
+                    className="p-1.5 hover:bg-slate-200 text-slate-600 cursor-pointer"
+                    aria-label="Increase quantity"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Total Line Price */}
+                <span className="text-base font-black text-[#0F1D36]">
+                  {siteConfig.currency.symbol}
+                  {item.book.price * item.quantity}
+                </span>
+
+                {/* Remove 'X' Button */}
+                <button
+                  type="button"
+                  onClick={() => removeFromCart(item.book.id)}
+                  className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+                  title="Remove from cart"
+                  aria-label="Remove item"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Coupon Code Section */}
+        <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
+          <form onSubmit={handleApplyCoupon} className="flex flex-col sm:flex-row gap-2.5">
+            <input
+              type="text"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+              placeholder="Apply Coupon (e.g. FIRST50)"
+              className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm text-[#0F1D36] placeholder:text-slate-400 bg-white focus:outline-hidden focus:ring-1 focus:ring-[#0F2754]"
+            />
+            <button
+              type="submit"
+              className="px-6 py-2.5 rounded-xl bg-[#0F2754] hover:bg-[#153D78] text-white text-xs font-bold transition-colors cursor-pointer shadow-xs"
+            >
+              Apply
+            </button>
+          </form>
+
+          {couponSuccess && (
+            <p className="mt-2 text-xs font-bold text-emerald-700 flex items-center gap-1">
+              <Check className="w-3.5 h-3.5" />
+              <span>{couponSuccess}</span>
+            </p>
+          )}
+          {couponError && (
+            <p className="mt-2 text-xs font-bold text-rose-600">
+              {couponError}
+            </p>
+          )}
+        </div>
+
+        {/* Order Summary Box */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div className="space-y-2.5 text-xs sm:text-sm text-slate-600">
+            <div className="flex items-center justify-between">
+              <span>Subtotal</span>
+              <span className="font-bold text-[#0F1D36]">
+                {siteConfig.currency.symbol}
+                {subtotal}
+              </span>
             </div>
 
-            <div className="p-4 rounded-2xl border border-[#2878D0]/30 bg-[#EAF3FF] flex items-start gap-3">
-              <Zap className="w-5 h-5 text-[#153D78] mt-0.5 shrink-0" />
-              <div className="text-xs text-[#0F1D36]">
-                <strong className="text-[#153D78]">Zero Delivery Friction:</strong>{" "}
-                Instant access links will be delivered immediately on the order confirmation screen and saved to your personal bookshelf for lifetime downloads.
+            {appliedDiscount > 0 ? (
+              <div className="flex items-center justify-between text-emerald-700 font-bold">
+                <span>Discount ({appliedCouponName})</span>
+                <span>
+                  -{siteConfig.currency.symbol}
+                  {appliedDiscount}
+                </span>
               </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <span>Discount</span>
+                <span>-₹0</span>
+              </div>
+            )}
+
+            <div className="border-t border-slate-200 pt-3 flex items-center justify-between text-base sm:text-lg font-black text-[#0F1D36]">
+              <span>Total</span>
+              <span>
+                {siteConfig.currency.symbol}
+                {finalTotal}
+              </span>
             </div>
           </div>
 
-          {/* Right Column: Order Summary & Checkout Action */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-sm space-y-5">
-              <h2 className="font-bold text-base text-[#153D78] border-b border-[#E2E8F0] pb-3">
-                Order Summary
-              </h2>
+          {/* Golden Yellow Button: "Proceed to Checkout →" */}
+          <Link
+            href={`/checkout${appliedDiscount > 0 ? `?coupon=${couponCode.toUpperCase()}` : ""}`}
+            className="w-full py-3.5 px-6 rounded-xl bg-[#FDB813] hover:bg-amber-400 text-[#0F1D36] text-center font-extrabold text-sm flex items-center justify-center gap-2 shadow-md transition-all block"
+          >
+            <span>Proceed to Checkout</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
 
-              {/* Price Calculations */}
-              <div className="space-y-2.5 text-xs">
-                <div className="flex justify-between text-slate-600">
-                  <span>Items Subtotal ({totalItems})</span>
-                  <span className="font-bold text-[#0F1D36]">
-                    {siteConfig.currency.symbol}
-                    {subtotal}
-                  </span>
-                </div>
-
-                {appliedDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-600 font-semibold">
-                    <span>Promotional Coupon Discount</span>
-                    <span>
-                      -{siteConfig.currency.symbol}
-                      {appliedDiscount}
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex justify-between text-slate-600">
-                  <span>Instant Digital Delivery</span>
-                  <span className="text-emerald-700 font-bold">FREE</span>
-                </div>
-
-                <div className="flex justify-between text-slate-600">
-                  <span>GST / Indian Taxes</span>
-                  <span className="font-semibold text-slate-700">Included</span>
-                </div>
-
-                <div className="pt-3 border-t border-[#E2E8F0] flex justify-between items-baseline">
-                  <span className="font-bold text-sm text-[#0F1D36]">
-                    Total Payable
-                  </span>
-                  <span className="text-2xl font-black text-[#153D78]">
-                    {siteConfig.currency.symbol}
-                    {finalTotal}
-                  </span>
-                </div>
-              </div>
-
-              {/* Coupon Code Input */}
-              <form onSubmit={handleApplyCoupon} className="pt-2">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Tag className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                      placeholder="Coupon code (e.g. APEX20)"
-                      className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#F4F6FA] border border-[#E2E8F0] uppercase tracking-wider outline-none focus:border-[#2878D0]"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-xl bg-[#153D78] hover:bg-[#2878D0] text-white text-xs font-bold transition-colors cursor-pointer"
-                  >
-                    Apply
-                  </button>
-                </div>
-                {couponSuccess && (
-                  <p className="text-[11px] text-emerald-600 flex items-center gap-1 mt-1.5 font-semibold">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    {couponSuccess}
-                  </p>
-                )}
-                {couponError && (
-                  <p className="text-[11px] text-rose-600 flex items-center gap-1 mt-1.5 font-semibold">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    {couponError}
-                  </p>
-                )}
-              </form>
-
-              {/* Checkout Action */}
-              <div className="pt-3 space-y-3">
-                <Link
-                  href="/checkout"
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#153D78] hover:bg-[#2878D0] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all text-center"
-                >
-                  <span>Proceed to Checkout</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-
-                <div className="flex items-center justify-center gap-2 text-[11px] text-slate-500">
-                  <Lock className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>SSL Secured • Razorpay / Demo Ready</span>
-                </div>
-              </div>
-            </div>
+          {/* Continue Shopping Link */}
+          <div className="text-center pt-2">
+            <Link
+              href="/books"
+              className="text-xs font-bold text-[#153D78] hover:underline"
+            >
+              Continue Shopping
+            </Link>
           </div>
         </div>
       </div>

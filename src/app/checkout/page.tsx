@@ -1,43 +1,56 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { siteConfig } from "@/config/site";
 import { createClient } from "@/lib/supabase/client";
+import { BookCover } from "@/components/BookCover";
 import {
   ShieldCheck,
   Zap,
   Lock,
-  ArrowLeft,
   CheckCircle2,
   AlertTriangle,
-  Download,
-  BookOpen,
-  ShoppingBag,
-  ExternalLink,
-  ChevronRight,
+  ArrowRight,
+  CreditCard,
+  Smartphone,
+  Building,
+  Wallet,
 } from "lucide-react";
 
-export default function CheckoutPage() {
+function CheckoutContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const couponParam = searchParams.get("coupon");
+
   const { cart, subtotal, totalItems, clearCart } = useCart();
-  const [customerEmail, setCustomerEmail] = useState("");
   const [customerName, setCustomerName] = useState("");
-  const [paymentMode, setPaymentMode] = useState<"demo" | "razorpay">("demo");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"upi" | "card" | "netbanking" | "wallet">("upi");
+  const [gatewayMode, setGatewayMode] = useState<"demo" | "razorpay">("demo");
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [completedOrder, setCompletedOrder] = useState<any>(null);
 
+  // Discount calculation
+  const discountAmount = couponParam === "FIRST50"
+    ? Math.round(subtotal * 0.5)
+    : couponParam === "APEX20"
+    ? Math.round(subtotal * 0.2)
+    : 0;
+
+  const finalTotal = Math.max(0, subtotal - discountAmount);
+
   const supabase = createClient();
 
-  // Prefill customer email if logged in
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         setCustomerEmail(user.email || "");
-        setCustomerName(
-          user.user_metadata?.full_name || user.email?.split("@")[0] || ""
-        );
+        setCustomerName(user.user_metadata?.full_name || user.email?.split("@")[0] || "");
       }
     });
   }, []);
@@ -45,16 +58,24 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
+
+    if (!customerEmail || !customerName) {
+      setErrorMessage("Please fill in your name and email address.");
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
-      if (paymentMode === "demo") {
+      if (gatewayMode === "demo") {
         const response = await fetch("/api/checkout/demo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             customerEmail,
             customerName,
+            customerPhone,
+            paymentMethod,
             items: cart.map((item) => ({ id: item.book.id, slug: item.book.slug })),
           }),
         });
@@ -62,28 +83,27 @@ export default function CheckoutPage() {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          setErrorMessage(data.error || "Failed to process demo order.");
+          setErrorMessage(data.error || "Failed to process order.");
           setIsProcessing(false);
           return;
         }
 
-        // Store completed order data for the confirmation screen
         setCompletedOrder({
           orderNumber: data.orderNumber,
           customerEmail,
           customerName,
-          totalAmount: data.totalAmount,
+          totalAmount: finalTotal,
           items: [...cart],
         });
 
-        // Clear cart
         clearCart();
         setIsProcessing(false);
       } else {
-        // Razorpay Test Mode
+        // Razorpay Gateway Flow
         setErrorMessage(
-          "Razorpay Test Mode requires configuring your test API keys in .env.local. Please select Demo Mode to test order placement."
+          "Razorpay live/test keys must be configured in environment variables. Switched to secure Demo Sandbox mode."
         );
+        setGatewayMode("demo");
         setIsProcessing(false);
       }
     } catch (err: any) {
@@ -92,373 +112,383 @@ export default function CheckoutPage() {
     }
   };
 
-  // Empty cart view (before order completed)
-  if (cart.length === 0 && !completedOrder) {
-    return (
-      <div className="bg-[#F4F6FA] min-h-[70vh] py-20 flex items-center justify-center">
-        <div className="max-w-md mx-auto px-4 text-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#EAF3FF] text-[#153D78] flex items-center justify-center mx-auto">
-            <ShoppingBag className="w-8 h-8" />
-          </div>
-          <h2 className="text-2xl font-black text-[#153D78]">
-            Your Cart is Empty
-          </h2>
-          <p className="text-xs text-slate-500 max-w-xs mx-auto">
-            Add books from our catalogue to proceed with secure checkout.
-          </p>
-          <div className="pt-2">
-            <Link
-              href="/books"
-              className="px-6 py-2.5 rounded-xl bg-[#153D78] text-white text-xs font-bold shadow-md hover:bg-[#2878D0] transition-all inline-block"
-            >
-              Browse Catalogue
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // --- ORDER CONFIRMED RECEIPT SCREEN ---
+  // ORDER SUCCESS CONFIRMATION SCREEN
   if (completedOrder) {
     return (
-      <div className="bg-[#F4F6FA] min-h-screen py-16">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-8 animate-in fade-in duration-300">
-          {/* Success Header */}
-          <div className="text-center space-y-3">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md">
-              <CheckCircle2 className="w-10 h-10" />
-            </div>
-            <h1 className="text-3xl font-black text-[#153D78]">
-              Order Confirmed & Entitlements Ready!
-            </h1>
-            <p className="text-sm text-slate-600 max-w-md mx-auto">
-              Thank you, <strong className="text-[#0F1D36]">{completedOrder.customerName || "Reader"}</strong>. Your order has been registered in our database.
-            </p>
-          </div>
-
-          {/* Order Receipt Card */}
-          <div className="bg-white rounded-3xl border border-[#E2E8F0] p-6 sm:p-8 shadow-xl space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E2E8F0] gap-2">
-              <div>
-                <span className="text-[11px] text-slate-400 uppercase tracking-widest font-mono">
-                  Order Reference
-                </span>
-                <p className="font-mono font-black text-lg text-[#153D78]">
-                  {completedOrder.orderNumber}
-                </p>
-              </div>
-              <div className="text-sm sm:text-right">
-                <span className="text-[11px] text-slate-400 uppercase tracking-widest font-mono">
-                  Payment Gateway
-                </span>
-                <p className="font-bold text-xs text-slate-800">
-                  Isolated Demo Sandbox
-                </p>
-              </div>
+      <div className="bg-white min-h-[80vh] py-16 flex items-center justify-center">
+        <div className="max-w-xl mx-auto px-4 w-full">
+          <div className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-10 shadow-xl space-y-6 text-center">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8" />
             </div>
 
-            {/* Delivery & Entitlement Notice */}
-            <div className="p-4 rounded-2xl bg-[#EAF3FF] border border-[#2878D0]/30 flex items-start gap-3">
-              <Zap className="w-5 h-5 text-[#153D78] mt-0.5 shrink-0" />
-              <div className="text-xs text-slate-700 space-y-0.5">
-                <p className="font-bold text-[#153D78]">
-                  Digital Rights Granted to: {completedOrder.customerEmail}
-                </p>
-                <p>
-                  Your purchase entitlement records have been recorded on Supabase. You have lifetime access to re-download these files.
-                </p>
-              </div>
-            </div>
-
-            {/* Purchased Books List with Download Links */}
-            <div className="space-y-3">
-              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">
-                Purchased Books ({completedOrder.items.length})
-              </h3>
-
-              <div className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-2xl overflow-hidden">
-                {completedOrder.items.map((item: any) => (
-                  <div
-                    key={item.book.id}
-                    className="p-4 flex items-center justify-between gap-4 bg-white"
-                  >
-                    <div className="min-w-0">
-                      <span className="text-[10px] font-bold text-[#2878D0] uppercase">
-                        {item.book.categoryName}
-                      </span>
-                      <h4 className="font-bold text-xs text-[#0F1D36] truncate">
-                        {item.book.title}
-                      </h4>
-                      <p className="text-[11px] text-slate-400">
-                        Format: {item.book.format} • By {item.book.author}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className="font-bold text-xs text-[#153D78]">
-                        {siteConfig.currency.symbol}{item.book.price}
-                      </span>
-                      <Link
-                        href="/account"
-                        className="px-3.5 py-1.5 rounded-lg bg-[#153D78] hover:bg-[#2878D0] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Download</span>
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Receipt Total */}
-            <div className="pt-2 flex justify-between items-baseline font-bold text-sm">
-              <span className="text-slate-600">Total Paid (Demo Simulator)</span>
-              <span className="text-2xl font-black text-[#153D78]">
-                {siteConfig.currency.symbol}{completedOrder.totalAmount}
-              </span>
-            </div>
-
-            {/* Action CTAs */}
-            <div className="pt-4 flex flex-col sm:flex-row gap-3">
-              <Link
-                href="/account"
-                className="flex-1 py-3 px-4 rounded-xl bg-[#153D78] hover:bg-[#2878D0] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all text-center"
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>Go to My Digital Bookshelf</span>
-              </Link>
-
-              <Link
-                href="/books"
-                className="py-3 px-5 rounded-xl border border-[#E2E8F0] hover:bg-[#F4F6FA] text-slate-800 font-bold text-xs text-center transition-colors"
-              >
-                Continue Shopping
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // --- CHECKOUT FORM ---
-  return (
-    <div className="bg-[#F4F6FA] min-h-screen py-10">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <Link
-          href="/cart"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#153D78]"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Return to Cart</span>
-        </Link>
-
-        {/* Demo Sandbox Alert Ribbon */}
-        <div className="p-4 rounded-2xl bg-[#EAF3FF] border border-[#2878D0]/30 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-[#153D78] shrink-0 mt-0.5" />
-          <div className="text-xs text-[#0F1D36] space-y-0.5">
-            <p className="font-bold text-[#153D78]">Sandbox Demo Payment Simulator Active</p>
-            <p className="text-slate-600">
-              This checkout interface connects directly to your Supabase backend to generate real order records, purchase entitlements, and digital download access without charging any real money.
-            </p>
-          </div>
-        </div>
-
-        {errorMessage && (
-          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
-            <span>{errorMessage}</span>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Customer Details & Gateway Selector */}
-          <div className="md:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-[#E2E8F0] shadow-sm space-y-6">
-            <div>
-              <h2 className="text-xl font-bold text-[#153D78]">
-                Customer Information & Delivery
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Your cryptographically verified book files will be tied to this email.
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-[#0F1D36]">
+                Order Confirmed!
+              </h1>
+              <p className="text-xs text-slate-500">
+                Order ID: <strong className="text-[#0F1D36]">{completedOrder.orderNumber}</strong>
               </p>
             </div>
 
-            <form onSubmit={handlePlaceOrder} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="Devendra Verma"
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F4F6FA] border border-[#E2E8F0] focus:border-[#2878D0] outline-none text-[#0F1D36]"
-                />
-              </div>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Thank you, <strong className="text-[#0F1D36]">{completedOrder.customerName}</strong>! Your eBooks have been added to your digital bookshelf and instant download links have been sent to{" "}
+              <strong className="text-[#0F1D36]">{completedOrder.customerEmail}</strong>.
+            </p>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Email Address (Digital Delivery Destination) *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  placeholder="devendra@example.com"
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F4F6FA] border border-[#E2E8F0] focus:border-[#2878D0] outline-none text-[#0F1D36]"
-                />
+            {/* Purchased Items List */}
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-left space-y-3">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Purchased Books
+              </p>
+              {completedOrder.items.map((item: any) => (
+                <div key={item.book.id} className="flex items-center justify-between gap-3 text-xs">
+                  <span className="font-bold text-[#0F1D36] truncate">{item.book.title}</span>
+                  <span className="font-mono text-slate-600 shrink-0">
+                    {siteConfig.currency.symbol}{item.book.price}
+                  </span>
+                </div>
+              ))}
+              <div className="border-t border-slate-200 pt-2 flex items-center justify-between text-xs font-black text-[#0F1D36]">
+                <span>Total Paid</span>
+                <span>{siteConfig.currency.symbol}{completedOrder.totalAmount}</span>
               </div>
+            </div>
 
-              {/* Payment Gateway Options */}
-              <div className="pt-2">
-                <label className="block text-xs font-bold text-slate-700 mb-2">
-                  Payment Method
-                </label>
+            {/* Actions */}
+            <div className="pt-2 flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/account"
+                className="flex-1 py-3 px-6 rounded-xl bg-[#0F2754] hover:bg-[#153D78] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-md text-center"
+              >
+                Go to My Library
+              </Link>
+              <Link
+                href="/books"
+                className="flex-1 py-3 px-6 rounded-xl border border-slate-300 hover:bg-slate-50 text-[#0F1D36] font-bold text-xs uppercase tracking-wider transition-colors text-center"
+              >
+                Continue Browsing
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (cart.length === 0) {
+    return (
+      <div className="bg-white min-h-[70vh] py-16 flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4 text-center space-y-4">
+          <h2 className="text-2xl font-black text-[#0F1D36]">Your Cart is Empty</h2>
+          <p className="text-xs text-slate-500">
+            Please select at least one eBook before proceeding to checkout.
+          </p>
+          <Link
+            href="/books"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0F2754] text-white font-bold text-xs uppercase"
+          >
+            Explore Books
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white min-h-screen py-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Breadcrumb */}
+        <nav className="text-xs text-slate-500 flex items-center gap-2">
+          <Link href="/" className="hover:text-[#0F2754]">
+            Home
+          </Link>
+          <span>&gt;</span>
+          <Link href="/cart" className="hover:text-[#0F2754]">
+            Cart
+          </Link>
+          <span>&gt;</span>
+          <span className="font-bold text-[#0F1D36]">Checkout</span>
+        </nav>
+
+        {/* Stepper (Matching Reference Image: 1. Shipping -> 2. Payment -> 3. Review) */}
+        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+          <div className="flex items-center justify-center gap-3 sm:gap-8 text-xs font-bold">
+            <div className="flex items-center gap-2 text-[#0F2754]">
+              <div className="w-6 h-6 rounded-full bg-[#0F2754] text-white flex items-center justify-center text-[11px]">
+                1
+              </div>
+              <span>Details</span>
+            </div>
+            <div className="w-8 h-0.5 bg-slate-300" />
+            <div className="flex items-center gap-2 text-[#0F2754]">
+              <div className="w-6 h-6 rounded-full bg-[#FDB813] text-[#0F1D36] flex items-center justify-center text-[11px] font-black">
+                2
+              </div>
+              <span>Payment</span>
+            </div>
+            <div className="w-8 h-0.5 bg-slate-300" />
+            <div className="flex items-center gap-2 text-slate-400">
+              <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[11px]">
+                3
+              </div>
+              <span>Instant Access</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Checkout Form & Order Summary */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* LEFT: Customer Info & Payment Methods */}
+          <div className="lg:col-span-7 space-y-6">
+            <form onSubmit={handlePlaceOrder} className="space-y-6">
+              {/* Customer Information Card */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                <h3 className="font-black text-sm text-[#0F1D36] uppercase tracking-wider">
+                  Customer Information
+                </h3>
 
                 <div className="space-y-3">
-                  {/* 1. Demo Mode (Active) */}
-                  <label className="flex items-start gap-3 p-4 rounded-2xl border-2 border-[#153D78] bg-[#EAF3FF] cursor-pointer transition-all">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Full Name *
+                    </label>
                     <input
-                      type="radio"
-                      name="paymentMode"
-                      value="demo"
-                      checked={paymentMode === "demo"}
-                      onChange={() => setPaymentMode("demo")}
-                      className="mt-1 text-[#153D78] focus:ring-[#2878D0]"
+                      type="text"
+                      required
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="e.g. Rahul Sharma"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm text-[#0F1D36] placeholder:text-slate-400 bg-white focus:outline-hidden focus:ring-1 focus:ring-[#0F2754]"
                     />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#153D78]">
-                          Isolated Demo Payment Simulator
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#153D78] text-white">
-                          READY TO TEST
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-600 mt-1">
-                        Simulate a completed order instantly. Writes to Supabase orders, payments, and entitlements tables.
-                      </p>
-                    </div>
-                  </label>
+                  </div>
 
-                  {/* 2. Razorpay Test Mode */}
-                  <label className="flex items-start gap-3 p-4 rounded-2xl border border-[#E2E8F0] bg-[#F4F6FA] cursor-pointer transition-all">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Email Address *
+                    </label>
                     <input
-                      type="radio"
-                      name="paymentMode"
-                      value="razorpay"
-                      checked={paymentMode === "razorpay"}
-                      onChange={() => setPaymentMode("razorpay")}
-                      className="mt-1 text-[#153D78] focus:ring-[#2878D0]"
+                      type="email"
+                      required
+                      value={customerEmail}
+                      onChange={(e) => setCustomerEmail(e.target.value)}
+                      placeholder="e.g. rahul@example.com"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm text-[#0F1D36] placeholder:text-slate-400 bg-white focus:outline-hidden focus:ring-1 focus:ring-[#0F2754]"
                     />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#0F1D36]">
-                          Razorpay Gateway (Test Mode)
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-blue-100 text-[#153D78]">
-                          TESTNET
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-1">
-                        Enables UPI, NetBanking, and card testing using Razorpay Test API keys.
-                      </p>
-                    </div>
-                  </label>
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      eBook download link and library access will be sent here.
+                    </p>
+                  </div>
 
-                  {/* 3. Razorpay Live Mode (Locked) */}
-                  <div className="flex items-start gap-3 p-4 rounded-2xl border border-[#E2E8F0] bg-slate-50 opacity-60 cursor-not-allowed">
-                    <input type="radio" disabled className="mt-1" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-500">
-                          Razorpay Gateway (Live Mode)
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
-                          LOCKED
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-400 mt-1">
-                        Strict Guardrail: Live payments require explicit approval.
-                      </p>
-                    </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Phone Number (Optional)
+                    </label>
+                    <input
+                      type="tel"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder="+91 98765 43210"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm text-[#0F1D36] placeholder:text-slate-400 bg-white focus:outline-hidden focus:ring-1 focus:ring-[#0F2754]"
+                    />
                   </div>
                 </div>
               </div>
 
-              {/* Submit Action */}
-              <div className="pt-4 space-y-3">
-                <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="w-full py-4 px-6 rounded-2xl bg-[#153D78] hover:bg-[#2878D0] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
-                >
-                  <Lock className="w-4 h-4" />
-                  <span>
-                    {isProcessing
-                      ? "Authorizing & Registering Order..."
-                      : `Complete Demo Payment (${siteConfig.currency.symbol}${subtotal})`}
-                  </span>
-                </button>
+              {/* Payment Method Selector (Matching Reference Design) */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                <h3 className="font-black text-sm text-[#0F1D36] uppercase tracking-wider">
+                  Payment Method
+                </h3>
 
-                <div className="flex items-center justify-center gap-2 text-[11px] text-slate-500">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>256-Bit SSL Encrypted & Database-Backed Entitlement</span>
+                <div className="space-y-2.5">
+                  {/* UPI */}
+                  <label
+                    className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-colors ${
+                      paymentMethod === "upi"
+                        ? "border-[#0F2754] bg-blue-50/40"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        checked={paymentMethod === "upi"}
+                        onChange={() => setPaymentMethod("upi")}
+                        className="w-4 h-4 text-[#0F2754]"
+                      />
+                      <Smartphone className="w-4 h-4 text-[#0F2754]" />
+                      <span className="text-xs font-bold text-[#0F1D36]">
+                        UPI (Google Pay, PhonePe, Paytm, BHIM)
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                      Instant
+                    </span>
+                  </label>
+
+                  {/* Cards */}
+                  <label
+                    className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-colors ${
+                      paymentMethod === "card"
+                        ? "border-[#0F2754] bg-blue-50/40"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        checked={paymentMethod === "card"}
+                        onChange={() => setPaymentMethod("card")}
+                        className="w-4 h-4 text-[#0F2754]"
+                      />
+                      <CreditCard className="w-4 h-4 text-[#0F2754]" />
+                      <span className="text-xs font-bold text-[#0F1D36]">
+                        Credit / Debit Card (Visa, Mastercard, RuPay)
+                      </span>
+                    </div>
+                  </label>
+
+                  {/* Net Banking */}
+                  <label
+                    className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-colors ${
+                      paymentMethod === "netbanking"
+                        ? "border-[#0F2754] bg-blue-50/40"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        checked={paymentMethod === "netbanking"}
+                        onChange={() => setPaymentMethod("netbanking")}
+                        className="w-4 h-4 text-[#0F2754]"
+                      />
+                      <Building className="w-4 h-4 text-[#0F2754]" />
+                      <span className="text-xs font-bold text-[#0F1D36]">
+                        Net Banking (All Indian Banks)
+                      </span>
+                    </div>
+                  </label>
+
+                  {/* Wallets */}
+                  <label
+                    className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-colors ${
+                      paymentMethod === "wallet"
+                        ? "border-[#0F2754] bg-blue-50/40"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        checked={paymentMethod === "wallet"}
+                        onChange={() => setPaymentMethod("wallet")}
+                        className="w-4 h-4 text-[#0F2754]"
+                      />
+                      <Wallet className="w-4 h-4 text-[#0F2754]" />
+                      <span className="text-xs font-bold text-[#0F1D36]">
+                        Wallets &amp; Others
+                      </span>
+                    </div>
+                  </label>
                 </div>
+              </div>
+
+              {/* Gateway Sandbox Mode Indicator */}
+              <div className="bg-amber-50 p-3 rounded-xl border border-amber-200 text-[11px] text-amber-900 flex items-center justify-between">
+                <span>Payment Mode: <strong>Razorpay Demo Sandbox</strong> (Zero Real Charge)</span>
+                <span className="font-bold text-amber-800">Verified</span>
+              </div>
+
+              {errorMessage && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-700">
+                  {errorMessage}
+                </div>
+              )}
+
+              {/* Navy Blue CTA: "Pay Now" */}
+              <button
+                type="submit"
+                disabled={isProcessing}
+                className="w-full py-4 px-6 rounded-xl bg-[#0F2754] hover:bg-[#153D78] text-white font-extrabold text-sm uppercase tracking-wider transition-all shadow-md cursor-pointer disabled:opacity-50"
+              >
+                {isProcessing ? "Processing Secure Order..." : `Pay Now • ${siteConfig.currency.symbol}${finalTotal}`}
+              </button>
+
+              {/* Security note matching reference image */}
+              <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500">
+                <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Your payment is secure and encrypted</span>
               </div>
             </form>
           </div>
 
-          {/* Right Column: Order Summary */}
-          <div className="md:col-span-5 bg-white p-6 rounded-3xl border border-[#E2E8F0] space-y-5 shadow-sm">
-            <h3 className="font-bold text-sm text-[#153D78] border-b border-[#E2E8F0] pb-3">
-              Cart Summary ({totalItems} {totalItems === 1 ? "item" : "items"})
+          {/* RIGHT: Order Summary */}
+          <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <h3 className="font-black text-sm text-[#0F1D36] uppercase tracking-wider pb-3 border-b border-slate-200">
+              Order Summary ({totalItems} {totalItems === 1 ? "Item" : "Items"})
             </h3>
 
-            <div className="space-y-3 max-h-72 overflow-y-auto divide-y divide-[#F4F6FA]">
+            <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto pr-1">
               {cart.map((item) => (
-                <div key={item.book.id} className="pt-2.5 first:pt-0 flex justify-between items-start gap-3">
-                  <div className="min-w-0">
-                    <h4 className="font-bold text-xs text-[#0F1D36] line-clamp-1">
+                <div key={item.book.id} className="py-3 flex items-center gap-3">
+                  <BookCover book={item.book} size="xs" showBadge={false} />
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-bold text-xs text-[#0F1D36] truncate">
                       {item.book.title}
                     </h4>
                     <p className="text-[11px] text-slate-500">
-                      {item.book.format} • By {item.book.author}
+                      Qty: {item.quantity}
                     </p>
                   </div>
-                  <span className="font-black text-xs text-[#153D78] shrink-0">
-                    {siteConfig.currency.symbol}{item.book.price}
+                  <span className="font-bold text-xs text-[#0F1D36]">
+                    {siteConfig.currency.symbol}{item.book.price * item.quantity}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="pt-3 border-t border-[#E2E8F0] space-y-2 text-xs">
-              <div className="flex justify-between text-slate-500">
+            <div className="space-y-2 border-t border-slate-200 pt-3 text-xs text-slate-600">
+              <div className="flex items-center justify-between">
                 <span>Subtotal</span>
                 <span className="font-bold text-[#0F1D36]">
                   {siteConfig.currency.symbol}{subtotal}
                 </span>
               </div>
-              <div className="flex justify-between text-slate-500">
-                <span>Digital Delivery</span>
-                <span className="text-emerald-700 font-bold">FREE Instant</span>
+
+              {discountAmount > 0 && (
+                <div className="flex items-center justify-between text-emerald-700 font-bold">
+                  <span>Discount ({couponParam})</span>
+                  <span>-{siteConfig.currency.symbol}{discountAmount}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between">
+                <span>Taxes (GST)</span>
+                <span>Included</span>
               </div>
-              <div className="pt-2 border-t border-[#E2E8F0] flex justify-between font-bold text-sm">
-                <span className="text-[#0F1D36]">Total Payable</span>
-                <span className="text-xl text-[#153D78] font-black">
-                  {siteConfig.currency.symbol}{subtotal}
-                </span>
+
+              <div className="border-t border-slate-200 pt-3 flex items-center justify-between text-base font-black text-[#0F1D36]">
+                <span>Total Amount</span>
+                <span>{siteConfig.currency.symbol}{finalTotal}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-xs text-slate-500">Loading checkout...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }

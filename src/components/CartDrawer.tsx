@@ -21,50 +21,50 @@ export function CartDrawer() {
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white border-l border-[#E2E8F0] shadow-2xl flex flex-col">
+        <div className="w-screen max-w-md bg-white border-l border-slate-200 shadow-2xl flex flex-col">
           {/* Header */}
-          <div className="p-4 sm:p-5 border-b border-[#E2E8F0] flex items-center justify-between bg-white">
+          <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-white">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#EAF3FF] flex items-center justify-center text-[#153D78]">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-[#0F2754]">
                 <ShoppingBag className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-bold text-[#153D78] text-base">
-                  Your Shopping Cart
+                <h2 className="font-bold text-[#0F1D36] text-base">
+                  Your Cart
                 </h2>
                 <span className="text-[11px] text-slate-500">
-                  {totalItems} {totalItems === 1 ? "book" : "books"} selected
+                  {totalItems} {totalItems === 1 ? "eBook" : "eBooks"} selected
                 </span>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setIsCartOpen(false)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-[#F4F6FA] transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Cart Items List */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 divide-y divide-[#E2E8F0]">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 divide-y divide-slate-100">
             {cart.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6">
-                <div className="w-16 h-16 rounded-2xl bg-[#EAF3FF] flex items-center justify-center text-[#153D78] mb-4">
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-[#0F2754]">
                   <ShoppingBag className="w-8 h-8" />
                 </div>
-                <h3 className="font-bold text-[#0F1D36] text-base mb-1">
+                <h3 className="font-bold text-[#0F1D36] text-base">
                   Your cart is empty
                 </h3>
-                <p className="text-xs text-slate-500 max-w-xs mb-6 leading-relaxed">
+                <p className="text-xs text-slate-500 max-w-xs leading-relaxed">
                   Explore our curated catalogue of books and add your next great read to your digital library.
                 </p>
                 <Link
                   href="/books"
                   onClick={() => setIsCartOpen(false)}
-                  className="px-5 py-2.5 text-xs font-bold rounded-xl bg-[#153D78] hover:bg-[#2878D0] text-white transition-colors"
+                  className="px-6 py-2.5 text-xs font-bold rounded-full bg-[#0F2754] hover:bg-[#153D78] text-white transition-colors"
                 >
-                  Browse Storefront
+                  Explore eBooks
                 </Link>
               </div>
             ) : (
@@ -78,25 +78,25 @@ export function CartDrawer() {
                     <BookCover book={item.book} size="sm" showBadge={false} />
                   </Link>
 
-                  <div className="flex-1 min-w-0">
-                    <span className="text-[10px] font-bold text-[#2878D0] uppercase tracking-wider">
+                  <div className="flex-1 min-w-0 space-y-0.5">
+                    <span className="text-[10px] font-bold text-[#153D78] uppercase tracking-wider">
                       {item.book.categoryName}
                     </span>
                     <Link
                       href={`/books/${item.book.slug}`}
                       onClick={() => setIsCartOpen(false)}
                     >
-                      <h4 className="font-bold text-sm text-[#0F1D36] line-clamp-1 hover:text-[#2878D0] transition-colors">
+                      <h4 className="font-bold text-sm text-[#0F1D36] line-clamp-1 hover:text-[#153D78] transition-colors">
                         {item.book.title}
                       </h4>
                     </Link>
-                    <p className="text-xs text-slate-500 truncate mt-0.5">By {item.book.author}</p>
-                    <p className="text-[11px] text-slate-400 mt-1 font-mono">
-                      {item.book.format} • Instant PDF Download
+                    <p className="text-xs text-slate-500 truncate">By {item.book.author}</p>
+                    <p className="text-[11px] text-slate-400 font-mono">
+                      {item.book.format} • Instant Delivery
                     </p>
 
-                    <div className="flex items-center justify-between mt-3 pt-1 border-t border-[#F4F6FA]">
-                      <span className="font-bold text-sm text-[#153D78]">
+                    <div className="flex items-center justify-between pt-2">
+                      <span className="font-black text-sm text-[#0F1D36]">
                         {siteConfig.currency.symbol}
                         {item.book.price}
                       </span>
@@ -117,10 +117,10 @@ export function CartDrawer() {
 
           {/* Footer Summary */}
           {cart.length > 0 && (
-            <div className="p-4 sm:p-5 border-t border-[#E2E8F0] bg-[#F4F6FA] space-y-3.5">
+            <div className="p-4 sm:p-5 border-t border-slate-200 bg-slate-50 space-y-3.5">
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-slate-600">
-                  <span>Subtotal ({totalItems} {totalItems === 1 ? "Book" : "Books"})</span>
+                  <span>Subtotal ({totalItems} {totalItems === 1 ? "eBook" : "eBooks"})</span>
                   <span className="font-bold text-[#0F1D36]">
                     {siteConfig.currency.symbol}
                     {subtotal}
@@ -133,9 +133,9 @@ export function CartDrawer() {
                   </span>
                   <span className="text-emerald-700 font-bold">FREE Instant</span>
                 </div>
-                <div className="border-t border-[#E2E8F0] pt-2 flex justify-between items-baseline font-bold text-sm text-[#0F1D36]">
+                <div className="border-t border-slate-200 pt-2 flex justify-between items-baseline font-bold text-sm text-[#0F1D36]">
                   <span>Total Amount</span>
-                  <span className="text-xl font-black text-[#153D78]">
+                  <span className="text-xl font-black text-[#0F1D36]">
                     {siteConfig.currency.symbol}
                     {subtotal}
                   </span>
@@ -143,10 +143,11 @@ export function CartDrawer() {
               </div>
 
               <div className="pt-1 space-y-2">
+                {/* Golden Yellow Proceed to Checkout CTA */}
                 <Link
                   href="/checkout"
                   onClick={() => setIsCartOpen(false)}
-                  className="w-full py-3 px-4 rounded-xl bg-[#153D78] hover:bg-[#2878D0] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all text-center"
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#FDB813] hover:bg-amber-400 text-[#0F1D36] font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all text-center"
                 >
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="w-4 h-4" />
@@ -155,14 +156,14 @@ export function CartDrawer() {
                 <Link
                   href="/cart"
                   onClick={() => setIsCartOpen(false)}
-                  className="w-full py-2 px-4 rounded-xl border border-[#E2E8F0] hover:bg-white text-slate-700 font-semibold text-xs flex items-center justify-center transition-colors text-center"
+                  className="w-full py-2.5 px-4 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center transition-colors text-center"
                 >
-                  View Full Cart & Apply Coupons
+                  View Full Cart &amp; Apply Coupons
                 </Link>
 
                 <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500 pt-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>256-Bit SSL Encrypted & Instant Delivery</span>
+                  <span>256-Bit SSL Encrypted &amp; Instant Delivery</span>
                 </div>
               </div>
             </div>

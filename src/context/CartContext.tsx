@@ -7,6 +7,7 @@ interface CartContextType {
   cart: CartItem[];
   addToCart: (book: Book) => void;
   removeFromCart: (bookId: string) => void;
+  updateQuantity: (bookId: string, quantity: number) => void;
   clearCart: () => void;
   isInCart: (bookId: string) => boolean;
   totalItems: number;
@@ -51,9 +52,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = (book: Book) => {
     setCart((prev) => {
-      const exists = prev.some((item) => item.book.id === book.id);
-      if (exists) {
-        // Digital ebooks only need quantity 1
+      const existing = prev.find((item) => item.book.id === book.id);
+      if (existing) {
         return prev;
       }
       return [...prev, { book, quantity: 1 }];
@@ -63,6 +63,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const removeFromCart = (bookId: string) => {
     setCart((prev) => prev.filter((item) => item.book.id !== bookId));
+  };
+
+  const updateQuantity = (bookId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(bookId);
+      return;
+    }
+    setCart((prev) =>
+      prev.map((item) =>
+        item.book.id === bookId ? { ...item, quantity } : item
+      )
+    );
   };
 
   const clearCart = () => {
@@ -84,6 +96,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         cart,
         addToCart,
         removeFromCart,
+        updateQuantity,
         clearCart,
         isInCart,
         totalItems,

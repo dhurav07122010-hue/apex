@@ -18,34 +18,34 @@ if (mResults.length > 0 && mResults.every(b => (b.title + b.author + b.shortDesc
   failed++;
 }
 
-// Test 2: Query 'html' returns '5 HTML Ways'
-const htmlResults = filterBooksRelative(MOCK_BOOKS, "html");
-const has5HtmlWays = htmlResults.some(b => b.title.includes("5 HTML Ways"));
-if (has5HtmlWays) {
-  console.log(`PASS [Test 2]: Query 'html' relative search matched '${htmlResults[0].title}'`);
+// Test 2: Query 'atomic' returns 'Atomic Habits'
+const atomicResults = filterBooksRelative(MOCK_BOOKS, "atomic");
+const hasAtomicHabits = atomicResults.some(b => b.title.includes("Atomic Habits"));
+if (hasAtomicHabits) {
+  console.log(`PASS [Test 2]: Query 'atomic' relative search matched '${atomicResults[0].title}'`);
   passed++;
 } else {
-  console.error("FAIL [Test 2]: Query 'html' did not match 5 HTML Ways:", htmlResults);
+  console.error("FAIL [Test 2]: Query 'atomic' did not match Atomic Habits:", atomicResults);
   failed++;
 }
 
-// Test 3: Query 'html, 5 html ways' (comma separated relative multi-word)
-const multiResults = filterBooksRelative(MOCK_BOOKS, "html, 5 html ways");
-if (multiResults.length > 0 && multiResults[0].title.includes("5 HTML Ways")) {
-  console.log(`PASS [Test 3]: Query 'html, 5 html ways' ranked '${multiResults[0].title}' as #1 match`);
+// Test 3: Query 'habits, atomic habits' (comma separated relative multi-word)
+const multiResults = filterBooksRelative(MOCK_BOOKS, "habits, atomic habits");
+if (multiResults.length > 0 && multiResults[0].title.includes("Atomic Habits")) {
+  console.log(`PASS [Test 3]: Query 'habits, atomic habits' ranked '${multiResults[0].title}' as #1 match`);
   passed++;
 } else {
-  console.error("FAIL [Test 3]: Query 'html, 5 html ways' failed:", multiResults);
+  console.error("FAIL [Test 3]: Query 'habits, atomic habits' failed:", multiResults);
   failed++;
 }
 
-// Test 4: Query '5 html ways'
-const exactResults = filterBooksRelative(MOCK_BOOKS, "5 html ways");
-if (exactResults.length > 0 && exactResults[0].title.includes("5 HTML Ways")) {
-  console.log(`PASS [Test 4]: Query '5 html ways' returned '${exactResults[0].title}'`);
+// Test 4: Query 'psychology of money'
+const exactResults = filterBooksRelative(MOCK_BOOKS, "psychology of money");
+if (exactResults.length > 0 && exactResults[0].title.includes("The Psychology of Money")) {
+  console.log(`PASS [Test 4]: Query 'psychology of money' returned '${exactResults[0].title}'`);
   passed++;
 } else {
-  console.error("FAIL [Test 4]: Query '5 html ways' failed:", exactResults);
+  console.error("FAIL [Test 4]: Query 'psychology of money' failed:", exactResults);
   failed++;
 }
 

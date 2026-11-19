@@ -1,67 +1,91 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { MOCK_BOOKS } from "@/data/mock-books";
 import { BookCard } from "@/components/BookCard";
 import { BookCover } from "@/components/BookCover";
+import { CategoryIcon } from "@/components/CategoryIcons";
+import { HeroTabletMockup } from "@/components/HeroTabletMockup";
+import { StackedBooks3D } from "@/components/StackedBooks3D";
 import {
   ArrowRight,
-  BookOpen,
-  GraduationCap,
-  Cpu,
-  Code,
-  Briefcase,
-  TrendingUp,
-  Sparkles,
-  Compass,
-  Award,
-  Layers,
-  ShieldCheck,
   Zap,
-  Download,
-  Star,
-  CheckCircle,
-  CreditCard,
-  Clock,
-  ChevronLeft,
-  ChevronRight,
-  Mail,
-  Check,
+  ShieldCheck,
+  Infinity as InfinityIcon,
   Headphones,
-  Lock,
+  Check,
+  Send,
+  Star,
+  BookOpen,
 } from "lucide-react";
 
-// Category Icon Mapping
-const categoryIcons: Record<string, React.ReactNode> = {
-  education: <GraduationCap className="w-6 h-6 text-[#153D78]" />,
-  technology: <Cpu className="w-6 h-6 text-[#153D78]" />,
-  programming: <Code className="w-6 h-6 text-[#153D78]" />,
-  business: <Briefcase className="w-6 h-6 text-[#153D78]" />,
-  finance: <TrendingUp className="w-6 h-6 text-[#153D78]" />,
-  "self-improvement": <Sparkles className="w-6 h-6 text-[#153D78]" />,
-  fiction: <BookOpen className="w-6 h-6 text-[#153D78]" />,
-  "non-fiction": <Compass className="w-6 h-6 text-[#153D78]" />,
-  "competitive-examinations": <Award className="w-6 h-6 text-[#153D78]" />,
-  "other-digital-books": <Layers className="w-6 h-6 text-[#153D78]" />,
-};
-
 export default function HomePage() {
-  const featuredBooks = MOCK_BOOKS.filter((b) => b.isFeatured);
-  const bestSellers = MOCK_BOOKS.filter((b) => b.isBestseller);
-  const newArrivals = [...MOCK_BOOKS].reverse().slice(0, 8);
-
-  const bestsellersRef = useRef<HTMLDivElement>(null);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+  const [heroSlide, setHeroSlide] = useState(0);
+  const [testimonialSlide, setTestimonialSlide] = useState(0);
 
-  const scrollBestsellers = (direction: "left" | "right") => {
-    if (bestsellersRef.current) {
-      const scrollAmount = direction === "left" ? -340 : 340;
-      bestsellersRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
-  };
+  // Handpicked for you (Exact 4 books from reference image)
+  const handpickedSlugs = [
+    "atomic-habits",
+    "the-psychology-of-money",
+    "rich-dad-poor-dad",
+    "ikigai",
+  ];
+  const handpickedBooks = handpickedSlugs
+    .map((slug) => MOCK_BOOKS.find((b) => b.slug === slug))
+    .filter(Boolean) as typeof MOCK_BOOKS;
+
+  // Bestsellers ranked 1 to 4 (Exact 4 books from reference image)
+  const bestsellerRankSlugs = [
+    "atomic-habits",
+    "the-5-am-club",
+    "deep-work",
+    "do-epic-shit",
+  ];
+  const bestsellerBooks = bestsellerRankSlugs
+    .map((slug) => MOCK_BOOKS.find((b) => b.slug === slug))
+    .filter(Boolean) as typeof MOCK_BOOKS;
+
+  // 7 Categories matching the reference image homepage grid
+  const homeCategorySlugs = [
+    "fiction-literature",
+    "business-finance",
+    "self-improvement",
+    "education-learning",
+    "technology",
+    "competitive-exams",
+    "children-young-readers",
+  ];
+  const homeCategories = homeCategorySlugs
+    .map((slug) => siteConfig.categories.find((c) => c.slug === slug))
+    .filter(Boolean) as typeof siteConfig.categories;
+
+  const testimonials = [
+    {
+      quote:
+        "Amazing collection! The platform is super easy to use and the books are great quality.",
+      author: "Happy Reader",
+      role: "Verified Purchaser",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+    },
+    {
+      quote:
+        "Instant PDF delivery right to my library! No waiting, no DRM hassles. The reading experience on iPad is pure perfection.",
+      author: "Priya Sharma",
+      role: "Engineering Student",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    },
+    {
+      quote:
+        "The best curated selection of business and personal development books in India. Seamless Razorpay checkout with UPI.",
+      author: "Rahul Verma",
+      role: "Startup Founder",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    },
+  ];
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,101 +95,413 @@ export default function HomePage() {
     }
   };
 
-  // Hero Spotlight Books
-  const heroBooks = MOCK_BOOKS.slice(0, 3);
-
   return (
-    <div className="flex flex-col gap-12 sm:gap-16 pb-20 bg-white">
+    <div className="flex flex-col bg-white">
       {/* ======================================================== */}
-      {/* SECTION A: BOOKSTORE HERO SECTION                        */}
+      {/* 1. HERO SECTION                                          */}
       {/* ======================================================== */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#EAF3FF]/70 via-[#F4F6FA]/50 to-white pt-10 sm:pt-16 pb-16 sm:pb-20 border-b border-[#E2E8F0]">
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#FDFCFB] via-[#F8FAFC] to-white pt-10 sm:pt-14 pb-12 sm:pb-16 border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-            {/* Left Headline & Call to Actions */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+            {/* Left Column: Headlines & Actions */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EAF3FF] border border-[#BFDBFE] text-[#153D78] text-xs font-bold tracking-wide">
-                <Sparkles className="w-4 h-4 text-[#2878D0]" />
-                <span>Premier Indian Online Bookstore — Instant Knowledge & Digital Reading</span>
+              {/* Badge/Tag */}
+              <div className="inline-block">
+                <span className="text-xs sm:text-sm font-extrabold text-[#153D78] tracking-widest uppercase border-b-2 border-[#153D78] pb-1">
+                  YOUR NEXT GREAT READ STARTS HERE.
+                </span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0F1D36] leading-[1.15]">
-                Discover Your <br />
-                <span className="text-[#153D78]">Next Great Read.</span>
+              {/* Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0F1D36] leading-[1.12]">
+                Discover Books <br />
+                That Inspire You.
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                Explore an authoritative collection of world-class eBooks across Technology, Software Engineering, Competitive Examinations, Business, and Finance — instantly accessible on all devices.
+              {/* Description */}
+              <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                Explore our premium collection of eBooks and unlock a world of knowledge.
               </p>
 
-              {/* CTAs */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3.5 pt-2">
+              {/* CTA Buttons */}
+              <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4">
                 <Link
                   href="/books"
-                  className="px-7 py-3.5 rounded-xl bg-[#153D78] hover:bg-[#1B5EB0] text-white font-bold text-sm flex items-center gap-2.5 shadow-md shadow-[#153D78]/20 transition-all cursor-pointer"
+                  className="px-6 py-3.5 rounded-full bg-[#0F2754] hover:bg-[#153D78] text-white text-sm font-bold flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
                 >
-                  <span>Explore Books</span>
+                  <span>Explore eBooks</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
 
                 <Link
-                  href="/categories"
-                  className="px-7 py-3.5 rounded-xl border-2 border-[#153D78] text-[#153D78] hover:bg-[#EAF3FF] font-bold text-sm transition-all"
+                  href="/books?sort=bestseller"
+                  className="px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 text-[#0F1D36] text-sm font-bold border border-slate-300 shadow-xs hover:border-slate-400 transition-all"
                 >
-                  Browse Categories
+                  Browse Bestsellers
                 </Link>
               </div>
 
-              {/* Trust Badges */}
-              <div className="pt-6 border-t border-[#E2E8F0] grid grid-cols-3 gap-4 text-left">
-                <div className="flex items-start gap-2.5">
-                  <Zap className="w-5 h-5 text-[#2878D0] shrink-0 mt-0.5" />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800">Instant Delivery</h5>
-                    <p className="text-[11px] text-slate-500">Immediate download links</p>
-                  </div>
+              {/* Carousel Dots */}
+              <div className="pt-4 flex items-center justify-center lg:justify-start gap-2">
+                {[0, 1, 2].map((idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setHeroSlide(idx)}
+                    className={`h-2.5 rounded-full transition-all cursor-pointer ${
+                      heroSlide === idx
+                        ? "w-8 bg-[#153D78]"
+                        : "w-2.5 bg-slate-300 hover:bg-slate-400"
+                    }`}
+                    aria-label={`Slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: High-Fidelity Tablet Mockup */}
+            <div className="lg:col-span-5 flex justify-center lg:justify-end">
+              <HeroTabletMockup />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 2. TRUST INDICATORS (4 Items)                            */}
+      {/* ======================================================== */}
+      <section className="py-6 sm:py-8 border-b border-slate-200/80 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            {/* 1: Instant Digital Delivery */}
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#153D78] flex items-center justify-center shrink-0">
+                <Zap className="w-5 h-5 text-[#2563EB]" />
+              </div>
+              <div>
+                <h4 className="text-sm font-extrabold text-[#0F1D36]">
+                  Instant Digital Delivery
+                </h4>
+              </div>
+            </div>
+
+            {/* 2: Secure Razorpay Payments */}
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#153D78] flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5 text-[#2563EB]" />
+              </div>
+              <div>
+                <h4 className="text-sm font-extrabold text-[#0F1D36]">
+                  Secure Razorpay Payments
+                </h4>
+              </div>
+            </div>
+
+            {/* 3: Lifetime Library Access */}
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#153D78] flex items-center justify-center shrink-0">
+                <InfinityIcon className="w-5 h-5 text-[#2563EB]" />
+              </div>
+              <div>
+                <h4 className="text-sm font-extrabold text-[#0F1D36]">
+                  Lifetime Library Access
+                </h4>
+              </div>
+            </div>
+
+            {/* 4: Customer Support Always Here */}
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#153D78] flex items-center justify-center shrink-0">
+                <Headphones className="w-5 h-5 text-[#2563EB]" />
+              </div>
+              <div>
+                <h4 className="text-sm font-extrabold text-[#0F1D36]">
+                  Customer Support Always Here
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 3. SHOP BY CATEGORY                                      */}
+      {/* ======================================================== */}
+      <section className="py-12 sm:py-16 bg-[#FBFBFC]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36]">
+              Shop by Category
+            </h2>
+            <Link
+              href="/categories"
+              className="text-xs sm:text-sm font-bold text-[#153D78] hover:text-[#0F2754] flex items-center gap-1 group"
+            >
+              <span>View All Categories</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+
+          {/* 7 Category Cards Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+            {homeCategories.map((category) => (
+              <Link
+                key={category.id}
+                href={`/categories/${category.slug}`}
+                className="group p-4 rounded-2xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-md border border-slate-200/80"
+                style={{ backgroundColor: category.bgColor }}
+              >
+                <div className="w-14 h-14 mb-3 transition-transform duration-300 group-hover:scale-110">
+                  <CategoryIcon name={category.slug} className="w-14 h-14" />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-[#0F1D36] leading-tight line-clamp-2">
+                  {category.name}
+                </h3>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 4. HANDPICKED FOR YOU                                    */}
+      {/* ======================================================== */}
+      <section className="py-12 sm:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header with Signature Yellow Accent Bar */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-7 rounded-full bg-[#FDB813]" />
+              <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36]">
+                Handpicked For You
+              </h2>
+            </div>
+            <Link
+              href="/books"
+              className="text-xs sm:text-sm font-bold text-[#153D78] hover:text-[#0F2754] flex items-center gap-1 group"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+
+          {/* 4 Product Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {handpickedBooks.map((book) => (
+              <BookCard key={book.id} book={book} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 5. PROMOTIONAL BANNER                                    */}
+      {/* ======================================================== */}
+      <section className="py-8 sm:py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl bg-gradient-to-r from-[#0A1931] via-[#0F2754] to-[#153D78] p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Background Glow */}
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Left Content */}
+            <div className="relative z-10 space-y-3 text-center md:text-left max-w-xl">
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+                Knowledge Is Just One Click Away.
+              </h3>
+              <p className="text-sm sm:text-base text-slate-200/90 leading-relaxed">
+                Explore our collection of carefully curated digital books.
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/books"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FDB813] hover:bg-amber-400 text-[#0F1D36] text-xs sm:text-sm font-extrabold shadow-md transition-all"
+                >
+                  <span>Start Reading Today</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Graphic: 3D Stacked Books with Golden Pages */}
+            <div className="relative z-10 shrink-0">
+              <StackedBooks3D className="w-56 h-40 sm:w-64 sm:h-44" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 6. BESTSELLERS (Ranked 1 to 4)                           */}
+      {/* ======================================================== */}
+      <section className="py-12 sm:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header with Signature Yellow Accent Bar */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-7 rounded-full bg-[#FDB813]" />
+              <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36]">
+                Bestsellers
+              </h2>
+            </div>
+            <Link
+              href="/books?sort=bestseller"
+              className="text-xs sm:text-sm font-bold text-[#153D78] hover:text-[#0F2754] flex items-center gap-1 group"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+
+          {/* 4 Ranked Bestseller Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {bestsellerBooks.map((book, index) => (
+              <Link
+                key={book.id}
+                href={`/books/${book.slug}`}
+                className="group flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-lg transition-all duration-300"
+              >
+                {/* Gold Rank Number Circle */}
+                <div className="w-9 h-9 rounded-full bg-[#FDB813] text-[#0F1D36] font-black text-sm flex items-center justify-center shrink-0 shadow-xs">
+                  {index + 1}
                 </div>
 
-                <div className="flex items-start gap-2.5">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800">Verified Files</h5>
-                    <p className="text-[11px] text-slate-500">100% Genuine PDFs</p>
-                  </div>
+                {/* Book Thumbnail */}
+                <div className="shrink-0 transition-transform duration-300 group-hover:scale-105">
+                  <BookCover book={book} size="xs" showBadge={false} />
                 </div>
 
-                <div className="flex items-start gap-2.5">
-                  <CreditCard className="w-5 h-5 text-[#153D78] shrink-0 mt-0.5" />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800">Razorpay Protected</h5>
-                    <p className="text-[11px] text-slate-500">UPI, Cards, NetBanking</p>
+                {/* Details */}
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-bold text-sm text-[#0F1D36] group-hover:text-[#153D78] transition-colors truncate">
+                    {book.title}
+                  </h4>
+                  <p className="text-xs text-slate-500 truncate mt-0.5">
+                    {book.author}
+                  </p>
+                  <p className="font-black text-sm text-[#0F1D36] mt-1.5">
+                    {siteConfig.currency.symbol}
+                    {book.price}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 7. WHY CHOOSE APEXBOOKS & WHAT OUR READERS SAY           */}
+      {/* ======================================================== */}
+      <section className="py-12 sm:py-16 bg-[#FBFBFC] border-t border-slate-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            {/* Left: Why Choose ApexBooks (4 Cards) */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-7 rounded-full bg-[#153D78]" />
+                <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36]">
+                  Why Choose ApexBooks?
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Feature 1 */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#153D78] flex items-center justify-center">
+                    <Zap className="w-4 h-4 text-[#2563EB]" />
                   </div>
+                  <h3 className="text-sm font-black text-[#0F1D36]">Instant Access</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Start reading immediately with high-speed digital delivery.
+                  </p>
+                </div>
+
+                {/* Feature 2 */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#153D78] flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4 text-[#2563EB]" />
+                  </div>
+                  <h3 className="text-sm font-black text-[#0F1D36]">Secure Checkout</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Shop with confidence via Razorpay UPI and cards.
+                  </p>
+                </div>
+
+                {/* Feature 3 */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#153D78] flex items-center justify-center">
+                    <BookOpen className="w-4 h-4 text-[#2563EB]" />
+                  </div>
+                  <h3 className="text-sm font-black text-[#0F1D36]">Curated Collection</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Handpicked for you by master editors and authors.
+                  </p>
+                </div>
+
+                {/* Feature 4 */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#153D78] flex items-center justify-center">
+                    <InfinityIcon className="w-4 h-4 text-[#2563EB]" />
+                  </div>
+                  <h3 className="text-sm font-black text-[#0F1D36]">Your Personal Library</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Access anytime, anywhere with lifetime cloud backup.
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Right Book Composition with realistic 3D layers */}
-            <div className="lg:col-span-5 flex justify-center items-center">
-              <div className="relative w-full max-w-md h-80 sm:h-96 flex items-center justify-center">
-                {/* Background podium card */}
-                <div className="absolute inset-x-4 inset-y-2 bg-[#EAF3FF] rounded-3xl border border-[#BFDBFE] -rotate-2 shadow-xs" />
+            {/* Right: What Our Readers Say */}
+            <div className="lg:col-span-5 space-y-6">
+              <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36]">
+                What Our Readers Say
+              </h2>
 
-                {/* Layered book covers with Pinwheel editorial styling */}
-                <div className="relative z-10 flex items-center justify-center -space-x-12 sm:-space-x-16 hover:space-x-2 transition-all duration-500">
-                  {heroBooks.map((book, idx) => (
-                    <Link
-                      key={book.id}
-                      href={`/books/${book.slug}`}
-                      className={`transform transition-all duration-300 hover:scale-110 hover:z-30 cursor-pointer ${
-                        idx === 0
-                          ? "-rotate-6 translate-y-3"
-                          : idx === 1
-                          ? "z-20 -translate-y-2 scale-105"
-                          : "rotate-6 translate-y-3"
+              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-md space-y-4 relative">
+                <div className="flex items-center gap-1 text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400" />
+                  ))}
+                </div>
+
+                <p className="text-sm sm:text-base text-slate-700 italic leading-relaxed">
+                  &ldquo;{testimonials[testimonialSlide].quote}&rdquo;
+                </p>
+
+                <div className="pt-2 flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-200 border-2 border-[#FDB813] shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={testimonials[testimonialSlide].avatar}
+                      alt={testimonials[testimonialSlide].author}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-sm text-[#0F1D36]">
+                      {testimonials[testimonialSlide].author}
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      {testimonials[testimonialSlide].role}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Carousel Dots */}
+                <div className="pt-2 flex items-center gap-1.5">
+                  {testimonials.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setTestimonialSlide(idx)}
+                      className={`h-2 rounded-full transition-all cursor-pointer ${
+                        testimonialSlide === idx
+                          ? "w-6 bg-[#153D78]"
+                          : "w-2 bg-slate-300 hover:bg-slate-400"
                       }`}
-                    >
-                      <BookCover book={book} size={idx === 1 ? "lg" : "md"} />
-                    </Link>
+                      aria-label={`Testimonial ${idx + 1}`}
+                    />
                   ))}
                 </div>
               </div>
@@ -175,423 +511,61 @@ export default function HomePage() {
       </section>
 
       {/* ======================================================== */}
-      {/* SECTION B: SHOP BY CATEGORY (Pinwheel Publications Grid) */}
+      {/* 8. NEWSLETTER SUBSCRIPTION BAR                           */}
       {/* ======================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#2878D0] mb-1">
-              <span>Knowledge Tracks</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36] tracking-tight">
-              Shop by Category
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Curated reading disciplines designed for students, developers, professionals, and avid readers.
-            </p>
-          </div>
-
-          <Link
-            href="/categories"
-            className="text-xs font-bold text-[#153D78] hover:text-[#2878D0] flex items-center gap-1 shrink-0"
-          >
-            <span>View All 10 Categories</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-
-        {/* Category Tiles Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
-          {siteConfig.categories.map((cat) => {
-            const count = MOCK_BOOKS.filter((b) => b.category === cat.slug).length;
-
-            return (
-              <Link
-                key={cat.id}
-                href={`/books?category=${cat.slug}`}
-                className="group p-4 sm:p-5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#2878D0] hover:shadow-md transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="w-12 h-12 rounded-xl bg-[#EAF3FF] group-hover:bg-[#153D78] transition-colors flex items-center justify-center mb-3">
-                    <span className="group-hover:text-white transition-colors">
-                      {categoryIcons[cat.slug] || <BookOpen className="w-6 h-6 text-[#153D78]" />}
-                    </span>
-                  </div>
-
-                  <h3 className="font-bold text-sm text-[#0F1D36] group-hover:text-[#2878D0] transition-colors line-clamp-1">
-                    {cat.name}
-                  </h3>
-                  <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-snug">
-                    {cat.description}
-                  </p>
-                </div>
-
-                <div className="mt-4 pt-2.5 border-t border-[#E2E8F0] flex items-center justify-between text-[11px] font-semibold text-slate-400 group-hover:text-[#153D78]">
-                  <span>{count} {count === 1 ? "Book" : "Books"}</span>
-                  <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ======================================================== */}
-      {/* SECTION C: FEATURED BOOKS                                */}
-      {/* ======================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#2878D0] mb-1">
-              <span>Editor&apos;s Selection</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36] tracking-tight">
-              Featured Books
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Hand-picked bestsellers and architectural masterpieces with comprehensive reading previews.
-            </p>
-          </div>
-
-          <Link
-            href="/books"
-            className="text-xs font-bold text-[#153D78] hover:text-[#2878D0] flex items-center gap-1 shrink-0"
-          >
-            <span>Explore All eBooks</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {featuredBooks.slice(0, 4).map((book) => (
-            <BookCard key={book.id} book={book} />
-          ))}
-        </div>
-      </section>
-
-      {/* ======================================================== */}
-      {/* SECTION D: BESTSELLERS SCROLLING SHELF                   */}
-      {/* ======================================================== */}
-      <section className="bg-[#F4F6FA] py-12 sm:py-16 border-y border-[#E2E8F0]">
+      <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 mb-1">
-                <span>Reader Favorites</span>
+          <div className="rounded-3xl bg-[#0F2754] p-8 sm:p-10 text-white shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8">
+            {/* Left Header */}
+            <div className="flex items-start gap-4 max-w-xl text-center lg:text-left">
+              <div className="w-12 h-12 rounded-2xl bg-amber-400/20 text-[#FDB813] flex items-center justify-center shrink-0 hidden sm:flex">
+                <Send className="w-6 h-6" />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36] tracking-tight">
-                Top Bestsellers
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Most purchased and highly rated titles across the marketplace.
-              </p>
-            </div>
-
-            {/* Scroll Navigation Buttons */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => scrollBestsellers("left")}
-                className="p-2.5 rounded-xl bg-white border border-[#CBD5E1] text-slate-700 hover:bg-[#EAF3FF] hover:text-[#153D78] transition-colors shadow-xs cursor-pointer"
-                aria-label="Scroll left"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollBestsellers("right")}
-                className="p-2.5 rounded-xl bg-white border border-[#CBD5E1] text-slate-700 hover:bg-[#EAF3FF] hover:text-[#153D78] transition-colors shadow-xs cursor-pointer"
-                aria-label="Scroll right"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Horizontally Scrollable Product Container */}
-          <div
-            ref={bestsellersRef}
-            className="flex gap-5 overflow-x-auto pb-4 scroll-smooth no-scrollbar"
-            style={{ scrollSnapType: "x mandatory" }}
-          >
-            {bestSellers.map((book) => (
-              <div
-                key={book.id}
-                className="w-72 sm:w-80 shrink-0"
-                style={{ scrollSnapAlign: "start" }}
-              >
-                <BookCard book={book} />
+              <div className="space-y-1">
+                <h3 className="text-xl sm:text-2xl font-black text-white">
+                  Stay Updated with Our Latest Books &amp; Offers
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300">
+                  Subscribe to our newsletter and never miss a deal!
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ======================================================== */}
-      {/* SECTION E: NEW ARRIVALS                                  */}
-      {/* ======================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 mb-1">
-              <span>Fresh Off The Press</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36] tracking-tight">
-              New Arrivals
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Recently added eBook publications including &quot;5 HTML Ways&quot; and competitive exam updates.
-            </p>
-          </div>
 
-          <Link
-            href="/books?sort=newest"
-            className="text-xs font-bold text-[#153D78] hover:text-[#2878D0] flex items-center gap-1 shrink-0"
-          >
-            <span>View All New Releases</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {newArrivals.slice(0, 4).map((book) => (
-            <BookCard key={book.id} book={book} />
-          ))}
-        </div>
-      </section>
-
-      {/* ======================================================== */}
-      {/* SECTION F: PROMOTIONAL SPOTLIGHT BANNER                  */}
-      {/* ======================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="rounded-3xl bg-[#153D78] text-white p-8 sm:p-12 relative overflow-hidden shadow-xl">
-          <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-radial from-[#2878D0]/30 to-transparent pointer-events-none" />
-
-          <div className="relative z-10 max-w-2xl space-y-4">
-            <span className="px-3 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider">
-              Special Knowledge Spotlight
-            </span>
-
-            <h3 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
-              Master Full-Stack Architecture & Exam Prep in 2026.
-            </h3>
-
-            <p className="text-sm sm:text-base text-slate-200 leading-relaxed">
-              Equip yourself with comprehensive handbooks on Modern TypeScript, Next.js, Cloud-Native Systems, and Quantitative Aptitude. Verified DRM-free files with lifetime re-downloads.
-            </p>
-
-            <div className="pt-2 flex flex-wrap items-center gap-3">
-              <Link
-                href="/books?category=programming"
-                className="px-6 py-3 rounded-xl bg-white text-[#153D78] hover:bg-[#EAF3FF] font-bold text-xs sm:text-sm transition-all"
-              >
-                Shop Tech Books
-              </Link>
-              <Link
-                href="/books?category=competitive-examinations"
-                className="px-6 py-3 rounded-xl border border-white/40 hover:bg-white/10 text-white font-bold text-xs sm:text-sm transition-all"
-              >
-                Shop Exam Prep
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ======================================================== */}
-      {/* SECTION G: WHY CHOOSE APEXBOOKS                          */}
-      {/* ======================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#2878D0] mb-1">
-            <span>Guaranteed Trust</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36] tracking-tight">
-            Why Choose ApexBooks?
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Built on transparent engineering standards, verified file delivery, and sovereign customer ownership.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] space-y-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#EAF3FF] text-[#153D78] flex items-center justify-center font-bold">
-              <CreditCard className="w-5 h-5 text-[#153D78]" />
-            </div>
-            <h4 className="font-bold text-sm text-[#0F1D36]">Razorpay Payments</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Encrypted authorization with UPI, NetBanking, and credit/debit cards.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] space-y-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#EAF3FF] text-[#153D78] flex items-center justify-center font-bold">
-              <Zap className="w-5 h-5 text-[#2878D0]" />
-            </div>
-            <h4 className="font-bold text-sm text-[#0F1D36]">Instant Digital Delivery</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Cryptographically signed download URLs generated immediately upon payment.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] space-y-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#EAF3FF] text-[#153D78] flex items-center justify-center font-bold">
-              <Clock className="w-5 h-5 text-purple-600" />
-            </div>
-            <h4 className="font-bold text-sm text-[#0F1D36]">Lifetime Access</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Re-download your purchased eBooks anytime from your personal account bookshelf.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] space-y-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#EAF3FF] text-[#153D78] flex items-center justify-center font-bold">
-              <ShieldCheck className="w-5 h-5 text-emerald-600" />
-            </div>
-            <h4 className="font-bold text-sm text-[#0F1D36]">Verified Book Files</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Pristine, malware-scanned PDF files formatted for Kindle, iPad, and desktop.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] space-y-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#EAF3FF] text-[#153D78] flex items-center justify-center font-bold">
-              <Headphones className="w-5 h-5 text-amber-600" />
-            </div>
-            <h4 className="font-bold text-sm text-[#0F1D36]">Dedicated Support</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Prompt customer service resolution for all order and download inquiries.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ======================================================== */}
-      {/* SECTION H: CUSTOMER REVIEWS                              */}
-      {/* ======================================================== */}
-      <section className="bg-[#F4F6FA] py-12 sm:py-16 border-y border-[#E2E8F0]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#2878D0] mb-1">
-              <span>Reader Testimonials</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#0F1D36] tracking-tight">
-              Trusted by Students & Professionals
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Verified experiences from readers who purchased and read our digital titles.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs space-y-3">
-              <div className="flex items-center text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400" />
-                ))}
-              </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                &quot;The Full-Stack TypeScript handbook was instrumental in our team&apos;s migration to Next.js App Router. The instant signed download worked flawlessly within 2 seconds of payment.&quot;
-              </p>
-              <div className="pt-2 border-t border-[#E2E8F0] flex items-center justify-between">
-                <div>
-                  <h5 className="font-bold text-xs text-[#0F1D36]">Rohan Sharma</h5>
-                  <p className="text-[10px] text-slate-400">Software Engineer, Bengaluru</p>
+            {/* Center / Right: Form & Illustration */}
+            <div className="w-full lg:w-auto flex-1 max-w-md">
+              {newsletterSubscribed ? (
+                <div className="p-3.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold flex items-center justify-center gap-2">
+                  <Check className="w-4 h-4" />
+                  <span>Thank you for subscribing to ApexBooks!</span>
                 </div>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                  Verified Purchase
-                </span>
-              </div>
+              ) : (
+                <form
+                  onSubmit={handleNewsletterSubmit}
+                  className="flex flex-col sm:flex-row items-center gap-2 bg-white/10 p-1.5 rounded-full border border-white/20 backdrop-blur-sm"
+                >
+                  <input
+                    type="email"
+                    required
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                    className="w-full px-5 py-2.5 rounded-full text-xs text-white placeholder:text-slate-300 bg-transparent outline-hidden"
+                  />
+                  <button
+                    type="submit"
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#FDB813] hover:bg-amber-400 text-[#0F1D36] text-xs font-extrabold uppercase tracking-wider shrink-0 transition-all cursor-pointer shadow-md"
+                  >
+                    Subscribe
+                  </button>
+                </form>
+              )}
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs space-y-3">
-              <div className="flex items-center text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400" />
-                ))}
-              </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                &quot;Mastering Quantitative Aptitude (2026 Edition) is the most comprehensive exam preparation guide I have studied. Clean typography and searchable solutions on my iPad.&quot;
-              </p>
-              <div className="pt-2 border-t border-[#E2E8F0] flex items-center justify-between">
-                <div>
-                  <h5 className="font-bold text-xs text-[#0F1D36]">Priya Venkatesh</h5>
-                  <p className="text-[10px] text-slate-400">Aspirant, UPSC & Banking</p>
-                </div>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                  Verified Purchase
-                </span>
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs space-y-3">
-              <div className="flex items-center text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400" />
-                ))}
-              </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                &quot;I appreciate being able to re-download my purchased books anytime from my bookshelf without restrictive proprietary reader apps. Genuine DRM-free publishing at its finest.&quot;
-              </p>
-              <div className="pt-2 border-t border-[#E2E8F0] flex items-center justify-between">
-                <div>
-                  <h5 className="font-bold text-xs text-[#0F1D36]">Anand Deshmukh</h5>
-                  <p className="text-[10px] text-slate-400">Founder & Investor, Mumbai</p>
-                </div>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                  Verified Purchase
-                </span>
-              </div>
+            {/* 3D Stack Graphic */}
+            <div className="hidden xl:block shrink-0">
+              <StackedBooks3D className="w-32 h-24" />
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ======================================================== */}
-      {/* SECTION I: FUNCTIONAL NEWSLETTER                         */}
-      {/* ======================================================== */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full text-center">
-        <div className="p-8 sm:p-12 rounded-3xl bg-[#EAF3FF] border border-[#BFDBFE] space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#153D78] text-white flex items-center justify-center mx-auto">
-            <Mail className="w-6 h-6" />
-          </div>
-
-          <h3 className="text-2xl font-black text-[#0F1D36]">
-            Subscribe to the ApexBooks Gazette
-          </h3>
-
-          <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
-            Receive monthly curated reading digests, new book releases, author interviews, and subscriber-exclusive discount codes.
-          </p>
-
-          {newsletterSubscribed ? (
-            <div className="p-4 rounded-xl bg-emerald-100 text-emerald-800 font-semibold text-xs flex items-center justify-center gap-2 max-w-md mx-auto">
-              <CheckCircle className="w-4 h-4" />
-              <span>Thank you for subscribing! Check your inbox for your 10% welcome voucher.</span>
-            </div>
-          ) : (
-            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto pt-2">
-              <input
-                type="email"
-                required
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-                placeholder="Enter your email address..."
-                className="flex-1 px-4 py-3 rounded-xl bg-white border border-[#CBD5E1] text-xs sm:text-sm outline-none focus:border-[#2878D0] text-slate-800"
-              />
-              <button
-                type="submit"
-                className="px-6 py-3 rounded-xl bg-[#153D78] hover:bg-[#1B5EB0] text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer shrink-0"
-              >
-                Subscribe
-              </button>
-            </form>
-          )}
-
-          <p className="text-[11px] text-slate-400">
-            We respect your privacy. No spam, ever. Unsubscribe with 1 click anytime.
-          </p>
         </div>
       </section>
     </div>
