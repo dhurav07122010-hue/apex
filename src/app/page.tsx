@@ -7,7 +7,7 @@ import { MOCK_BOOKS } from "@/data/mock-books";
 import { BookCard } from "@/components/BookCard";
 import { BookCover } from "@/components/BookCover";
 import { CategoryIcon } from "@/components/CategoryIcons";
-import { HeroTabletMockup } from "@/components/HeroTabletMockup";
+import { FeaturedHeroSlider } from "@/components/FeaturedHeroSlider";
 import { StackedBooks3D } from "@/components/StackedBooks3D";
 import {
   ArrowRight,
@@ -24,8 +24,19 @@ import {
 export default function HomePage() {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
-  const [heroSlide, setHeroSlide] = useState(0);
   const [testimonialSlide, setTestimonialSlide] = useState(0);
+
+  // Top Featured eBooks for Hero Showcase Slider
+  const featuredSlugs = [
+    "atomic-habits",
+    "the-psychology-of-money",
+    "rich-dad-poor-dad",
+    "ikigai",
+    "deep-work",
+  ];
+  const featuredBooks = featuredSlugs
+    .map((slug) => MOCK_BOOKS.find((b) => b.slug === slug))
+    .filter(Boolean) as typeof MOCK_BOOKS;
 
   // Handpicked for you (Exact 4 books from reference image)
   const handpickedSlugs = [
@@ -98,74 +109,9 @@ export default function HomePage() {
   return (
     <div className="flex flex-col bg-white">
       {/* ======================================================== */}
-      {/* 1. HERO SECTION                                          */}
+      {/* 1. FEATURED EBOOKS HERO SHOWCASE SLIDER                   */}
       {/* ======================================================== */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#FDFCFB] via-[#F8FAFC] to-white pt-10 sm:pt-14 pb-12 sm:pb-16 border-b border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-            {/* Left Column: Headlines & Actions */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              {/* Badge/Tag */}
-              <div className="inline-block">
-                <span className="text-xs sm:text-sm font-extrabold text-[#153D78] tracking-widest uppercase border-b-2 border-[#153D78] pb-1">
-                  YOUR NEXT GREAT READ STARTS HERE.
-                </span>
-              </div>
-
-              {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0F1D36] leading-[1.12]">
-                Discover Books <br />
-                That Inspire You.
-              </h1>
-
-              {/* Description */}
-              <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                Explore our premium collection of eBooks and unlock a world of knowledge.
-              </p>
-
-              {/* CTA Buttons */}
-              <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4">
-                <Link
-                  href="/books"
-                  className="px-6 py-3.5 rounded-full bg-[#0F2754] hover:bg-[#153D78] text-white text-sm font-bold flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-                >
-                  <span>Explore eBooks</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-
-                <Link
-                  href="/books?sort=bestseller"
-                  className="px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 text-[#0F1D36] text-sm font-bold border border-slate-300 shadow-xs hover:border-slate-400 transition-all"
-                >
-                  Browse Bestsellers
-                </Link>
-              </div>
-
-              {/* Carousel Dots */}
-              <div className="pt-4 flex items-center justify-center lg:justify-start gap-2">
-                {[0, 1, 2].map((idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setHeroSlide(idx)}
-                    className={`h-2.5 rounded-full transition-all cursor-pointer ${
-                      heroSlide === idx
-                        ? "w-8 bg-[#153D78]"
-                        : "w-2.5 bg-slate-300 hover:bg-slate-400"
-                    }`}
-                    aria-label={`Slide ${idx + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Right Column: High-Fidelity Tablet Mockup */}
-            <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <HeroTabletMockup />
-            </div>
-          </div>
-        </div>
-      </section>
+      <FeaturedHeroSlider books={featuredBooks} />
 
       {/* ======================================================== */}
       {/* 2. TRUST INDICATORS (4 Items)                            */}
