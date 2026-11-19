@@ -14,6 +14,13 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/checkout");
 
+  // Strict Protection for /admin: Unauthenticated users are immediately redirected to signin
+  if (pathname.startsWith("/admin") && !hasAuthCookie) {
+    const signInUrl = new URL("/auth/signin", request.url);
+    signInUrl.searchParams.set("redirect", "/admin");
+    return NextResponse.redirect(signInUrl);
+  }
+
   // Fast-path: If visitor has no auth session and is on public routes,
   // bypass Supabase network roundtrip completely for instant TTFB.
   if (!hasAuthCookie && !isProtectedPath) {
@@ -52,8 +59,23 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if authenticated or accessing protected path
-  if (hasAuthCookie || isProtectedPath) {
+  // If accessing /admin, enforce strict admin email authorization
+  if (pathname.startsWith("/admin")) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const authorizedAdminEmail = "dhurav07122010@gmail.com";
+    if (!user || user.email?.toLowerCase().trim() !== authorizedAdminEmail) {
+      const signInUrl = new URL("/auth/signin", request.url);
+      signInUrl.searchParams.set("redirect", "/admin");
+      signInUrl.searchParams.set(
+        "error",
+        "Admin access requires signing in with your authorized Gmail."
+      );
+      return NextResponse.redirect(signInUrl);
+    }
+  } else if (hasAuthCookie || isProtectedPath) {
     await supabase.auth.getUser();
   }
 

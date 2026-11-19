@@ -57,12 +57,13 @@ const tests = [
       text.includes("Customer Information"),
   },
   {
-    name: "8. Admin Gateway (/admin)",
+    name: "8. Admin Gateway Protection (/admin -> /auth/signin)",
     path: "/admin",
     expectedStatus: 200,
     checkContent: (text) =>
-      text.includes("dhurav07122010@gmail.com") &&
-      text.includes("Google OAuth Only"),
+      text.includes("Sign In") ||
+      text.includes("Continue with Google") ||
+      text.includes("redirect=%2Fadmin"),
   },
   {
     name: "9. Customer Sign In (/auth/signin)",

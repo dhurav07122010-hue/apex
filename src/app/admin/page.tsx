@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { validateAdminSession } from "@/lib/auth/admin";
 import {
   BookOpen,
   ShoppingBag,
@@ -16,6 +18,11 @@ import {
 import { siteConfig } from "@/config/site";
 
 export default async function AdminOverviewPage() {
+  const authResult = await validateAdminSession();
+  if (!authResult.authorized) {
+    redirect("/auth/signin?redirect=/admin");
+  }
+
   const adminDb = createAdminClient();
 
   // Fetch metrics in parallel
