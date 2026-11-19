@@ -26,6 +26,7 @@ function CheckoutContent() {
   const couponParam = searchParams.get("coupon");
 
   const { cart, subtotal, totalItems, clearCart } = useCart();
+  const [mounted, setMounted] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -34,6 +35,10 @@ function CheckoutContent() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [completedOrder, setCompletedOrder] = useState<any>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Discount calculation
   const discountAmount = couponParam === "FIRST50"
@@ -176,7 +181,18 @@ function CheckoutContent() {
     );
   }
 
-  if (cart.length === 0) {
+  if (!mounted || cart.length === 0) {
+    if (!mounted) {
+      return (
+        <div className="bg-white min-h-[70vh] py-16 flex items-center justify-center">
+          <div className="max-w-md mx-auto px-4 text-center space-y-4">
+            <div className="h-8 w-48 bg-slate-100 animate-pulse mx-auto rounded" />
+            <div className="h-4 w-64 bg-slate-100 animate-pulse mx-auto rounded" />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="bg-white min-h-[70vh] py-16 flex items-center justify-center">
         <div className="max-w-md mx-auto px-4 text-center space-y-4">

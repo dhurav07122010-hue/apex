@@ -24,7 +24,11 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     try {
       const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
       if (stored) {
-        setWishlist(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const sanitized = parsed.filter((b: any) => b && typeof b === "object" && typeof b.id === "string");
+          setWishlist(sanitized);
+        }
       }
     } catch {
       // Ignore localStorage read errors
@@ -43,21 +47,23 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   }, [wishlist, isHydrated]);
 
   const addToWishlist = (book: Book) => {
+    if (!book || !book.id) return;
     setWishlist((prev) => {
-      if (prev.some((b) => b.id === book.id)) return prev;
+      if (prev.some((b) => b?.id === book.id)) return prev;
       return [...prev, book];
     });
   };
 
   const removeFromWishlist = (bookId: string) => {
-    setWishlist((prev) => prev.filter((b) => b.id !== bookId));
+    setWishlist((prev) => prev.filter((b) => b?.id !== bookId));
   };
 
   const toggleWishlist = (book: Book) => {
+    if (!book || !book.id) return;
     setWishlist((prev) => {
-      const exists = prev.some((b) => b.id === book.id);
+      const exists = prev.some((b) => b?.id === book.id);
       if (exists) {
-        return prev.filter((b) => b.id !== book.id);
+        return prev.filter((b) => b?.id !== book.id);
       } else {
         return [...prev, book];
       }
@@ -65,7 +71,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   };
 
   const isInWishlist = (bookId: string) => {
-    return wishlist.some((b) => b.id === bookId);
+    return wishlist.some((b) => b?.id === bookId);
   };
 
   return (

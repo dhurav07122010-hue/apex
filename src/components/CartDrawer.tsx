@@ -68,7 +68,9 @@ export function CartDrawer() {
                 </Link>
               </div>
             ) : (
-              cart.map((item) => (
+              cart
+                .filter((item) => item?.book?.id)
+                .map((item) => (
                 <div key={item.book.id} className="py-4 first:pt-0 last:pb-0 flex gap-4 items-start">
                   <Link
                     href={`/books/${item.book.slug}`}

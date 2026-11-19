@@ -33,6 +33,11 @@ export function Navbar() {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [ebooksOpen, setEbooksOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -218,9 +223,10 @@ export function Navbar() {
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* User Profile */}
             <Link
-              href={user ? "/account" : "/auth/signin"}
+              href={mounted && user ? "/account" : "/auth/signin"}
               className="p-2 sm:p-2.5 rounded-full hover:bg-slate-100 text-[#0F1D36] transition-colors"
-              title={user ? "My Account" : "Sign In"}
+              title={mounted && user ? "My Account" : "Sign In"}
+              suppressHydrationWarning
             >
               <User className="w-5 h-5" />
             </Link>
@@ -232,7 +238,7 @@ export function Navbar() {
               title="My Wishlist"
             >
               <Heart className="w-5 h-5 text-slate-700 hover:text-rose-600 transition-colors" />
-              {totalWishlistItems > 0 && (
+              {mounted && totalWishlistItems > 0 && (
                 <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
                   {totalWishlistItems}
                 </span>
@@ -249,8 +255,11 @@ export function Navbar() {
             >
               <ShoppingCart className="w-5 h-5" />
               {/* Circular Red Badge matching reference design */}
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
-                {totalItems}
+              <span
+                suppressHydrationWarning
+                className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs"
+              >
+                {mounted ? totalItems : 0}
               </span>
             </button>
 

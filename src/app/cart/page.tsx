@@ -18,11 +18,16 @@ import {
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, subtotal, totalItems } = useCart();
+  const [mounted, setMounted] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
   const [appliedCouponName, setAppliedCouponName] = useState("");
   const [couponError, setCouponError] = useState("");
   const [couponSuccess, setCouponSuccess] = useState("");
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +54,19 @@ export default function CartPage() {
 
   const finalTotal = Math.max(0, subtotal - appliedDiscount);
 
-  if (cart.length === 0) {
+  if (!mounted || cart.length === 0) {
+    if (!mounted) {
+      return (
+        <div className="bg-white min-h-[70vh] py-16 flex items-center justify-center">
+          <div className="max-w-md mx-auto px-4 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-slate-100 animate-pulse mx-auto mb-4" />
+            <div className="h-6 w-48 bg-slate-100 animate-pulse mx-auto mb-2 rounded" />
+            <div className="h-4 w-64 bg-slate-100 animate-pulse mx-auto rounded" />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="bg-white min-h-[70vh] py-16 flex items-center justify-center">
         <div className="max-w-md mx-auto px-4 text-center">

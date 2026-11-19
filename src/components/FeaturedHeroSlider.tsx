@@ -32,14 +32,19 @@ export function FeaturedHeroSlider({ books }: FeaturedHeroSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [previewBook, setPreviewBook] = useState<Book | null>(null);
+  const [mounted, setMounted] = useState(false);
   const { addToCart, isInCart, setIsCartOpen } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!books || books.length === 0) return null;
 
   const currentBook = books[currentIndex] || books[0];
-  const inCart = isInCart(currentBook.id);
-  const inWishlist = isInWishlist(currentBook.id);
+  const inCart = mounted ? isInCart(currentBook.id) : false;
+  const inWishlist = mounted ? isInWishlist(currentBook.id) : false;
 
   const discountPercent = currentBook.originalPrice
     ? Math.round(

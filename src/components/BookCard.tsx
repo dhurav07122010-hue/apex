@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Book } from "@/types";
 import { BookCover } from "./BookCover";
@@ -17,8 +17,13 @@ interface BookCardProps {
 export function BookCard({ book, viewMode = "grid" }: BookCardProps) {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const inWishlist = isInWishlist(book.id);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const inWishlist = mounted ? isInWishlist(book.id) : false;
 
   const discountPercent = book.originalPrice
     ? Math.round(((book.originalPrice - book.price) / book.originalPrice) * 100)

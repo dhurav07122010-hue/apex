@@ -31,7 +31,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const stored = localStorage.getItem(CART_STORAGE_KEY);
       if (stored) {
-        setCart(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const sanitized: CartItem[] = parsed
+            .map((item: any) => {
+              if (item && item.book && typeof item.book === "object" && item.book.id) {
+                return {
+                  book: item.book,
+                  quantity: typeof item.quantity === "number" && item.quantity > 0 ? item.quantity : 1,
+                };
+              }
+              // Handle flat/legacy cart items
+              if (item && item.id && typeof item.id === "string") {
+                return {
+                  book: item,
+                  quantity: typeof item.quantity === "number" && item.quantity > 0 ? item.quantity : 1,
+                };
+              }
+              return null;
+            })
+            .filter((i): i is CartItem => i !== null);
+          setCart(sanitized);
+        }
       }
     } catch {
       // Ignore localStorage errors
@@ -51,8 +72,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cart, isHydrated]);
 
   const addToCart = (book: Book) => {
+    if (!book || !book.id) return;
     setCart((prev) => {
-      const existing = prev.find((item) => item.book.id === book.id);
+      const existing = prev.find((item) => item?.book?.id === book.id);
       if (existing) {
         return prev;
       }
@@ -62,7 +84,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeFromCart = (bookId: string) => {
-    setCart((prev) => prev.filter((item) => item.book.id !== bookId));
+    setCart((prev) => prev.filter((item) => item?.book?.id !== bookId));
   };
 
   const updateQuantity = (bookId: string, quantity: number) => {
@@ -72,7 +94,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
     setCart((prev) =>
       prev.map((item) =>
-        item.book.id === bookId ? { ...item, quantity } : item
+        item?.book?.id === bookId ? { ...item, quantity } : item
       )
     );
   };
@@ -82,11 +104,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const isInCart = (bookId: string) => {
-    return cart.some((item) => item.book.id === bookId);
+    return cart.some((item) => item?.book?.id === bookId);
   };
 
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = cart.reduce((sum, item) => sum + item.book.price * item.quantity, 0);
+  const totalItems = cart.reduce((sum, item) => sum + (item?.quantity || 0), 0);
+  const subtotal = cart.reduce((sum, item) => sum + (item?.book?.price || 0) * (item?.quantity || 1), 0);
 
   const toggleCart = () => setIsCartOpen((prev) => !prev);
 
