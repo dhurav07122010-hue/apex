@@ -7,7 +7,7 @@ import { BookCover } from "@/components/BookCover";
 import { BookPreviewModal } from "@/components/BookPreviewModal";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
-import { siteConfig } from "@/config/site";
+import { siteConfig, AUTHORIZED_ADMIN_EMAIL } from "@/config/site";
 import {
   User,
   BookOpen,
@@ -23,6 +23,7 @@ import {
   Calendar,
   ShieldCheck,
   Zap,
+  Shield,
 } from "lucide-react";
 
 interface AccountDashboardClientProps {
@@ -39,6 +40,9 @@ export function AccountDashboardClient({ initialUser, initialBooks = [] }: Accou
 
   const { wishlist, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
+
+  const isAdmin =
+    initialUser?.email?.toLowerCase().trim() === AUTHORIZED_ADMIN_EMAIL.toLowerCase().trim();
 
   // Purchased books in library (using passed books or default demo purchases)
   const purchasedBooks = initialBooks.length > 0 ? initialBooks : [];
@@ -169,6 +173,19 @@ export function AccountDashboardClient({ initialUser, initialBooks = [] }: Accou
                 <Lock className="w-4 h-4" />
                 <span>Change Password</span>
               </button>
+
+              {/* Admin Panel (Only visible to authorized admin in their private account) */}
+              {isAdmin && (
+                <div className="pt-2 border-t border-slate-200">
+                  <Link
+                    href="/admin"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 transition-colors shadow-2xs"
+                  >
+                    <Shield className="w-4 h-4 text-slate-950" />
+                    <span>Admin Dashboard</span>
+                  </Link>
+                </div>
+              )}
 
               {/* Logout */}
               <Link

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { siteConfig, AUTHORIZED_ADMIN_EMAIL } from "@/config/site";
+import { siteConfig } from "@/config/site";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { createClient } from "@/lib/supabase/client";
@@ -80,8 +80,6 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const isAdmin = user?.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase();
-
   const searchResults = searchQuery.trim()
     ? MOCK_BOOKS.filter(
         (b) =>
@@ -126,18 +124,6 @@ export function Navbar() {
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>Secure Payments</span>
             </div>
-
-            {isAdmin && (
-              <>
-                <span className="text-slate-500">|</span>
-                <Link
-                  href="/admin"
-                  className="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-bold text-[10px] uppercase hover:bg-amber-300 transition-colors"
-                >
-                  Admin Panel
-                </Link>
-              </>
-            )}
           </div>
         </div>
       </div>
