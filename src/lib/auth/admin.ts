@@ -100,6 +100,17 @@ export async function validateAdminSession(): Promise<AdminValidationResult> {
     }
 
     const sessionCheck = await verifyAdminSession(sessionToken);
+    
+    // Fast path: If the cryptographically HMAC-signed 240s session token is valid and unexpired,
+    // authorize immediately with zero remote network latency (instant tab switching).
+    if (sessionCheck.valid && sessionCheck.email) {
+      return {
+        authorized: true,
+        user: { email: sessionCheck.email } as User,
+        remainingMs: sessionCheck.remainingMs,
+      };
+    }
+
     if (!sessionCheck.valid) {
       return {
         authorized: false,

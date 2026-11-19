@@ -33,7 +33,7 @@ export function FeaturedHeroSlider({ books }: FeaturedHeroSliderProps) {
   const [isPaused, setIsPaused] = useState(false);
   const [previewBook, setPreviewBook] = useState<Book | null>(null);
   const [mounted, setMounted] = useState(false);
-  const { addToCart, isInCart, setIsCartOpen } = useCart();
+  const { addToCart, isInCart, setIsCartOpen, user } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
@@ -73,12 +73,28 @@ export function FeaturedHeroSlider({ books }: FeaturedHeroSliderProps) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!user) {
+      router.push(
+        `/auth/signin?redirect=${encodeURIComponent("/")}&message=${encodeURIComponent(
+          "Please sign in with your Google account first to add eBooks to your cart."
+        )}`
+      );
+      return;
+    }
     addToCart(currentBook);
     setIsCartOpen(true);
   };
 
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!user) {
+      router.push(
+        `/auth/signin?redirect=${encodeURIComponent("/")}&message=${encodeURIComponent(
+          "Please sign in with your Google account first to purchase eBooks."
+        )}`
+      );
+      return;
+    }
     if (!inCart) {
       addToCart(currentBook);
     }

@@ -27,6 +27,7 @@ function SignInForm() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(searchParams.get("error") || "");
   const [successMessage, setSuccessMessage] = useState("");
+  const infoMessage = searchParams.get("message");
 
   const supabase = createClient();
 
@@ -212,6 +213,13 @@ function SignInForm() {
       </div>
 
       {/* Feedback Alerts */}
+      {infoMessage && (
+        <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-800 flex items-start gap-2 shadow-xs">
+          <AlertCircle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+          <span className="font-semibold">{infoMessage}</span>
+        </div>
+      )}
+
       {errorMessage && (
         <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-start gap-2">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />

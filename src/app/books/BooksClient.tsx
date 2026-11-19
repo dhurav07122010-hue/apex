@@ -15,7 +15,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export function BooksClient() {
+import { Book } from "@/types";
+
+interface BooksClientProps {
+  initialBooks?: Book[];
+  categories?: any[];
+}
+
+export function BooksClient({
+  initialBooks,
+  categories: dynamicCategories,
+}: BooksClientProps = {}) {
+  const books = initialBooks || MOCK_BOOKS;
+  const categoriesList = dynamicCategories || siteConfig.categories;
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -72,7 +85,7 @@ export function BooksClient() {
 
   // Filtered & Sorted books
   const filteredBooks = useMemo(() => {
-    return MOCK_BOOKS.filter((book) => {
+    return books.filter((book) => {
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         const matches =
@@ -112,8 +125,8 @@ export function BooksClient() {
   const paginatedBooks = filteredBooks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const visibleCategories = showAllCategories
-    ? siteConfig.categories
-    : siteConfig.categories.slice(0, 5);
+    ? categoriesList
+    : categoriesList.slice(0, 5);
 
   return (
     <div className="bg-white min-h-screen py-6 sm:py-10">
@@ -129,7 +142,7 @@ export function BooksClient() {
             <>
               <span>/</span>
               <span className="font-bold text-[#153D78]">
-                {siteConfig.categories.find((c) => c.slug === selectedCategory)?.name || selectedCategory}
+                {categoriesList.find((c) => c.slug === selectedCategory)?.name || selectedCategory}
               </span>
             </>
           )}
@@ -191,11 +204,11 @@ export function BooksClient() {
                     />
                     <span>All Categories</span>
                   </div>
-                  <span className="text-[11px] text-slate-400">({MOCK_BOOKS.length})</span>
+                  <span className="text-[11px] text-slate-400">({books.length})</span>
                 </label>
 
                 {visibleCategories.map((cat) => {
-                  const count = MOCK_BOOKS.filter((b) => b.category === cat.slug).length;
+                  const count = books.filter((b) => b.category === cat.slug).length;
                   const isChecked = selectedCategory === cat.slug;
                   return (
                     <label
@@ -430,7 +443,7 @@ export function BooksClient() {
               {/* Categories */}
               <div className="space-y-2">
                 <h4 className="text-xs font-bold text-slate-500 uppercase">Category</h4>
-                {siteConfig.categories.map((cat) => (
+                {categoriesList.map((cat: any) => (
                   <button
                     key={cat.id}
                     type="button"

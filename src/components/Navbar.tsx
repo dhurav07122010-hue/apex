@@ -25,9 +25,11 @@ import {
 
 interface NavbarProps {
   logoUrl?: string;
+  categories?: any[];
 }
 
-export function Navbar({ logoUrl }: NavbarProps = {}) {
+export function Navbar({ logoUrl, categories: dynamicCategories }: NavbarProps = {}) {
+  const categoriesList = dynamicCategories || siteConfig.categories;
   const pathname = usePathname();
   const router = useRouter();
   const { totalItems, setIsCartOpen } = useCart();
@@ -375,9 +377,9 @@ export function Navbar({ logoUrl }: NavbarProps = {}) {
 
               {categoriesOpen && (
                 <div className="absolute top-full left-0 w-72 bg-white rounded-xl shadow-2xl border border-slate-200 p-2 z-50 grid grid-cols-1 gap-1 animate-in fade-in slide-in-from-top-1 duration-150">
-                  {siteConfig.categories.map((cat) => (
+                  {categoriesList.map((cat: any) => (
                     <Link
-                      key={cat.id}
+                      key={cat.id || cat.slug}
                       href={`/categories/${cat.slug}`}
                       className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-amber-50/70 transition-colors group"
                     >
@@ -482,9 +484,9 @@ export function Navbar({ logoUrl }: NavbarProps = {}) {
                 Categories
               </div>
 
-              {siteConfig.categories.map((cat) => (
+              {categoriesList.map((cat: any) => (
                 <Link
-                  key={cat.id}
+                  key={cat.id || cat.slug}
                   href={`/categories/${cat.slug}`}
                   className="flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50"
                 >

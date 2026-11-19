@@ -32,7 +32,7 @@ interface BookDetailClientProps {
 
 export function BookDetailClient({ book, relatedBooks }: BookDetailClientProps) {
   const router = useRouter();
-  const { addToCart, isInCart } = useCart();
+  const { addToCart, isInCart, user } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"description" | "learn" | "specs" | "reviews">("description");
@@ -46,6 +46,14 @@ export function BookDetailClient({ book, relatedBooks }: BookDetailClientProps) 
     : 0;
 
   const handleBuyNow = () => {
+    if (!user) {
+      router.push(
+        `/auth/signin?redirect=${encodeURIComponent(`/books/${book.slug}`)}&message=${encodeURIComponent(
+          "Please sign in with your Google account first to purchase eBooks."
+        )}`
+      );
+      return;
+    }
     if (!inCart) {
       addToCart(book);
     }

@@ -57,9 +57,14 @@ function CheckoutContent() {
       if (user) {
         setCustomerEmail(user.email || "");
         setCustomerName(user.user_metadata?.full_name || user.email?.split("@")[0] || "");
+      } else {
+        router.push(
+          "/auth/signin?redirect=/checkout&message=" +
+            encodeURIComponent("Please sign in first to complete your checkout.")
+        );
       }
     });
-  }, []);
+  }, [router, supabase]);
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();

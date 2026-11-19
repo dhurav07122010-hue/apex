@@ -3,6 +3,7 @@
 import { validateAdminSession } from "@/lib/auth/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
+import { clearBrandingCache } from "@/lib/siteSettings";
 
 export async function updateStoreSettings(formData: FormData) {
   const auth = await validateAdminSession();
@@ -100,6 +101,7 @@ export async function updateStoreSettings(formData: FormData) {
     updated_at: new Date().toISOString(),
   });
 
+  clearBrandingCache();
   revalidatePath("/admin/settings");
   revalidatePath("/admin");
   revalidatePath("/");

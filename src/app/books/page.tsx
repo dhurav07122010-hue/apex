@@ -1,13 +1,22 @@
 import React, { Suspense } from "react";
 import { BooksClient } from "./BooksClient";
+import { getStorefrontBooks, getStorefrontCategories } from "@/lib/storefront";
 import { Metadata } from "next";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "All eBooks & Curated Catalogue — ApexBooks",
-  description: "Browse, filter and find premium digital eBooks across business, self-improvement, technology, programming, and competitive examinations.",
+  description:
+    "Browse, filter and find premium digital eBooks across business, self-improvement, technology, programming, and competitive examinations.",
 };
 
-export default function BooksPage() {
+export default async function BooksPage() {
+  const [books, categories] = await Promise.all([
+    getStorefrontBooks(),
+    getStorefrontCategories(),
+  ]);
+
   return (
     <Suspense
       fallback={
@@ -17,7 +26,7 @@ export default function BooksPage() {
         </div>
       }
     >
-      <BooksClient />
+      <BooksClient initialBooks={books} categories={categories} />
     </Suspense>
   );
 }

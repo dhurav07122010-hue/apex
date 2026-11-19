@@ -74,6 +74,7 @@ export async function addCategory(formData: FormData) {
     return { error: error.message };
   }
 
+  revalidatePath("/");
   revalidatePath("/admin/categories");
   revalidatePath("/categories");
   revalidatePath("/books");
@@ -93,6 +94,7 @@ export async function deleteCategory(slug: string) {
     return { error: error.message };
   }
 
+  revalidatePath("/");
   revalidatePath("/admin/categories");
   revalidatePath("/categories");
   revalidatePath("/books");

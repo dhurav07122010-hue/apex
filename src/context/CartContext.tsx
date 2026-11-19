@@ -2,10 +2,11 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Book, CartItem } from "@/types";
+import { createClient } from "@/lib/supabase/client";
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (book: Book) => void;
+  addToCart: (book: Book, redirectUrl?: string) => boolean;
   removeFromCart: (bookId: string) => void;
   updateQuantity: (bookId: string, quantity: number) => void;
   clearCart: () => void;
@@ -15,6 +16,8 @@ interface CartContextType {
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
   toggleCart: () => void;
+  user: any;
+  isAuthenticated: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -25,6 +28,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  // Monitor Supabase Auth state
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -71,8 +91,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [cart, isHydrated]);
 
-  const addToCart = (book: Book) => {
-    if (!book || !book.id) return;
+  const addToCart = (book: Book, redirectUrl?: string): boolean => {
+    if (!book || !book.id) return false;
+
+    // Strict Enforcement: User must be signed in before adding items to cart
+    if (!user) {
+      const currentPath =
+        redirectUrl ||
+        (typeof window !== "undefined" ? window.location.pathname + window.location.search : "/books");
+      const signinUrl = `/auth/signin?redirect=${encodeURIComponent(
+        currentPath
+      )}&message=${encodeURIComponent("Please sign in first to add eBooks to your cart.")}`;
+
+      if (typeof window !== "undefined") {
+        window.location.href = signinUrl;
+      }
+      return false;
+    }
+
     setCart((prev) => {
       const existing = prev.find((item) => item?.book?.id === book.id);
       if (existing) {
@@ -81,6 +117,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return [...prev, { book, quantity: 1 }];
     });
     setIsCartOpen(true);
+    return true;
   };
 
   const removeFromCart = (bookId: string) => {
@@ -126,6 +163,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         isCartOpen,
         setIsCartOpen,
         toggleCart,
+        user,
+        isAuthenticated: !!user,
       }}
     >
       {children}

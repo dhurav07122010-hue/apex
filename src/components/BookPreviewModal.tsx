@@ -174,7 +174,8 @@ export function BookPreviewModal({ book, isOpen, onClose }: BookPreviewModalProp
             <button
               type="button"
               onClick={() => {
-                addToCart(book);
+                const added = addToCart(book);
+                if (added) onClose();
               }}
               className={`px-4 py-2 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-all shadow-sm ${
                 inCart

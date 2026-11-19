@@ -8,6 +8,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
 import { getSiteBranding } from "@/lib/siteSettings";
+import { getStorefrontCategories } from "@/lib/storefront";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,7 +39,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const branding = await getSiteBranding();
+  const [branding, categories] = await Promise.all([
+    getSiteBranding(),
+    getStorefrontCategories(),
+  ]);
 
   return (
     <html
@@ -56,7 +60,7 @@ export default async function RootLayout({
       >
         <CartProvider>
           <WishlistProvider>
-            <Navbar logoUrl={branding.logoUrl} />
+            <Navbar logoUrl={branding.logoUrl} categories={categories} />
             <main className="flex-1">{children}</main>
             <Footer />
             <CartDrawer />

@@ -1,24 +1,22 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { siteConfig } from "@/config/site";
-import { MOCK_BOOKS } from "@/data/mock-books";
+import { getStorefrontCategories, getStorefrontBooks } from "@/lib/storefront";
 import { BookCard } from "@/components/BookCard";
 import { CategoryIcon } from "@/components/CategoryIcons";
 import { ArrowLeft, Filter } from "lucide-react";
 import { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return siteConfig.categories.map((c) => ({ slug: c.slug }));
-}
-
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const category = siteConfig.categories.find((c) => c.slug === slug);
+  const categories = await getStorefrontCategories();
+  const category = categories.find((c) => c.slug === slug);
   if (!category) return { title: "Category Not Found — ApexBooks" };
 
   return {
@@ -29,13 +27,18 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function IndividualCategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const category = siteConfig.categories.find((c) => c.slug === slug);
+  const [categories, allBooks] = await Promise.all([
+    getStorefrontCategories(),
+    getStorefrontBooks(),
+  ]);
+
+  const category = categories.find((c) => c.slug === slug);
 
   if (!category) {
     notFound();
   }
 
-  const categoryBooks = MOCK_BOOKS.filter((b) => b.category === slug);
+  const categoryBooks = allBooks.filter((b) => b.category === slug);
 
   return (
     <div className="bg-white min-h-screen py-10">
@@ -55,8 +58,8 @@ export default async function IndividualCategoryPage({ params }: CategoryPagePro
 
         {/* Category Hero Banner */}
         <div
-          className="rounded-3xl p-8 sm:p-12 border border-slate-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-sm"
-          style={{ backgroundColor: category.bgColor }}
+          className="rounded-3xl p-8 sm:p-12 border border-slate-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-sm overflow-hidden"
+          style={{ backgroundColor: category.bgColor || "#EBF5FF" }}
         >
           <div className="space-y-3 max-w-xl">
             <span className="text-xs font-black uppercase tracking-wider text-[#153D78] bg-white/80 px-3 py-1 rounded-full border border-black/5">
@@ -73,8 +76,16 @@ export default async function IndividualCategoryPage({ params }: CategoryPagePro
             </p>
           </div>
 
-          <div className="w-24 h-24 shrink-0 hidden sm:block">
-            <CategoryIcon name={category.slug} className="w-24 h-24" />
+          <div className="w-24 h-24 shrink-0 hidden sm:flex items-center justify-center">
+            {category.imageUrl ? (
+              <img
+                src={category.imageUrl}
+                alt={category.name}
+                className="w-24 h-24 object-cover rounded-2xl shadow-sm"
+              />
+            ) : (
+              <CategoryIcon name={category.slug} className="w-24 h-24" />
+            )}
           </div>
         </div>
 

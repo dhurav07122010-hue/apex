@@ -1,8 +1,10 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { MOCK_BOOKS } from "@/data/mock-books";
+import { getStorefrontBookBySlug, getStorefrontBooks } from "@/lib/storefront";
 import { BookDetailClient } from "./BookDetailClient";
+
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -10,10 +12,10 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const book = MOCK_BOOKS.find((b) => b.slug === slug);
+  const book = await getStorefrontBookBySlug(slug);
   if (!book) {
     return {
-      title: "Book Not Found",
+      title: "Book Not Found — ApexBooks",
     };
   }
 
@@ -23,23 +25,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export async function generateStaticParams() {
-  return MOCK_BOOKS.map((book) => ({
-    slug: book.slug,
-  }));
-}
-
 export default async function BookDetailPage({ params }: Props) {
   const { slug } = await params;
-  const book = MOCK_BOOKS.find((b) => b.slug === slug);
+  const book = await getStorefrontBookBySlug(slug);
 
   if (!book) {
     notFound();
   }
 
-  const relatedBooks = MOCK_BOOKS.filter(
-    (b) => b.category === book.category && b.id !== book.id
-  ).slice(0, 3);
+  const allBooks = await getStorefrontBooks();
+  const relatedBooks = allBooks
+    .filter((b) => b.category === book.category && b.id !== book.id)
+    .slice(0, 3);
 
   return <BookDetailClient book={book} relatedBooks={relatedBooks} />;
 }

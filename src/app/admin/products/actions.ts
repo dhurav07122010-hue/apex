@@ -20,8 +20,10 @@ export async function toggleProductPublish(productId: string, currentStatus: boo
     return { error: error.message };
   }
 
+  revalidatePath("/");
   revalidatePath("/admin/products");
   revalidatePath("/books");
+  revalidatePath("/categories");
   return { success: true };
 }
 
@@ -38,8 +40,10 @@ export async function deleteProduct(productId: string) {
     return { error: error.message };
   }
 
+  revalidatePath("/");
   revalidatePath("/admin/products");
   revalidatePath("/books");
+  revalidatePath("/categories");
   return { success: true };
 }
 
@@ -152,7 +156,10 @@ export async function saveProduct(formData: FormData) {
     if (error) return { error: error.message };
   }
 
+  revalidatePath("/");
   revalidatePath("/admin/products");
   revalidatePath("/books");
+  revalidatePath(`/books/${slug}`);
+  revalidatePath("/categories");
   return { success: true };
 }
